@@ -1612,7 +1612,197 @@ sections.forEach(s => ioNav.observe(s));
 
 /* Hidden file input */
 #adm-file-input { display: none; }
+
+/* ════════════════════════════════════════════
+   IMAGE EDITOR — estilos
+════════════════════════════════════════════ */
+#img-editor-overlay {
+  display:none;position:fixed;inset:0;z-index:2000;
+  background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);
+  align-items:center;justify-content:center;
+}
+#img-editor-overlay.open{display:flex;}
+.img-editor-box {
+  background:#0F1E14;border:1px solid rgba(82,183,136,0.25);
+  border-radius:14px;width:min(95vw,860px);max-height:92vh;
+  display:flex;flex-direction:column;overflow:hidden;
+  box-shadow:0 32px 100px rgba(0,0,0,0.7);
+}
+.ie-header{
+  padding:1rem 1.25rem;border-bottom:1px solid rgba(82,183,136,0.15);
+  display:flex;align-items:center;gap:.75rem;flex-shrink:0;
+}
+.ie-title{font-family:'DM Mono',monospace;font-size:.75rem;color:#52B788;letter-spacing:.1em;text-transform:uppercase;flex:1}
+.ie-body{display:flex;flex:1;overflow:hidden;min-height:0;}
+.ie-canvas-wrap{
+  flex:1;background:#080F0B;display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;min-width:0;
+}
+#ie-canvas{
+  max-width:100%;max-height:100%;display:block;
+  cursor:crosshair;touch-action:none;
+}
+.ie-sidebar{
+  width:220px;min-width:220px;background:#0A1610;
+  border-left:1px solid rgba(82,183,136,0.12);
+  padding:1rem;overflow-y:auto;display:flex;flex-direction:column;gap:1rem;
+}
+.ie-section-lbl{
+  font-family:'DM Mono',monospace;font-size:.58rem;color:#52B788;
+  letter-spacing:.14em;text-transform:uppercase;margin-bottom:.5rem;display:block;
+}
+.ie-row{display:flex;gap:.4rem;align-items:center;}
+.ie-btn{
+  flex:1;padding:.45rem .5rem;background:rgba(82,183,136,0.08);
+  border:1px solid rgba(82,183,136,0.2);color:rgba(183,228,199,0.7);
+  font-family:'DM Mono',monospace;font-size:.62rem;cursor:pointer;
+  border-radius:5px;text-align:center;transition:all .15s;
+}
+.ie-btn:hover{background:rgba(82,183,136,0.2);color:#52B788;}
+.ie-btn.active{background:rgba(196,132,42,0.2);border-color:rgba(196,132,42,0.5);color:#F4A261;}
+.ie-input{
+  width:100%;padding:.45rem .6rem;background:rgba(82,183,136,0.06);
+  border:1px solid rgba(82,183,136,0.18);color:#FAF3E0;
+  font-family:'DM Mono',monospace;font-size:.72rem;border-radius:5px;outline:none;
+}
+.ie-input:focus{border-color:#52B788;}
+.ie-slider{width:100%;accent-color:#52B788;cursor:pointer;}
+.ie-val{font-family:'DM Mono',monospace;font-size:.65rem;color:#52B788;min-width:32px;text-align:right;}
+.ie-divider{height:1px;background:rgba(82,183,136,0.1);}
+.ie-save-btn{
+  width:100%;padding:.7rem;background:#C4842A;border:none;
+  color:#0a1a0f;font-family:'DM Mono',monospace;font-size:.72rem;font-weight:500;
+  letter-spacing:.08em;text-transform:uppercase;cursor:pointer;border-radius:6px;
+  transition:background .15s;
+}
+.ie-save-btn:hover{background:#F4A261;}
+.ie-cancel-btn{
+  width:100%;padding:.5rem;background:rgba(163,45,45,0.12);
+  border:1px solid rgba(163,45,45,0.25);color:rgba(240,149,149,0.7);
+  font-family:'DM Mono',monospace;font-size:.65rem;cursor:pointer;
+  border-radius:6px;transition:all .15s;text-transform:uppercase;letter-spacing:.06em;
+}
+.ie-cancel-btn:hover{background:rgba(163,45,45,0.22);color:#ff8080;}
+.ie-size-info{font-family:'DM Mono',monospace;font-size:.58rem;color:rgba(183,228,199,0.4);text-align:center;margin-top:.25rem;}
+.ie-crop-hint{font-family:'DM Mono',monospace;font-size:.58rem;color:rgba(196,132,42,0.7);text-align:center;padding:.4rem;background:rgba(196,132,42,0.08);border-radius:4px;}
+#crop-overlay{position:absolute;border:2px solid #F4A261;box-shadow:0 0 0 9999px rgba(0,0,0,0.5);pointer-events:none;display:none;}
+
 </style>
+
+
+<!-- ════ IMAGE EDITOR MODAL ════ -->
+<div id="img-editor-overlay">
+  <div class="img-editor-box">
+    <div class="ie-header">
+      <div class="ie-title">✂ Editor de imagen</div>
+      <button class="adm-close-btn" onclick="closeImageEditor()">✕ Cancelar</button>
+    </div>
+    <div class="ie-body">
+      <div class="ie-canvas-wrap">
+        <canvas id="ie-canvas"></canvas>
+        <div id="crop-overlay"></div>
+      </div>
+      <div class="ie-sidebar">
+
+        <!-- Rotar / Voltear -->
+        <div>
+          <span class="ie-section-lbl">Rotar y voltear</span>
+          <div class="ie-row">
+            <button class="ie-btn" id="btn-rot-l" title="Rotar izquierda">↺ 90°</button>
+            <button class="ie-btn" id="btn-rot-r" title="Rotar derecha">↻ 90°</button>
+          </div>
+          <div class="ie-row" style="margin-top:.4rem">
+            <button class="ie-btn" id="btn-flip-h">⇆ Voltear</button>
+            <button class="ie-btn" id="btn-flip-v">⇅ Voltear</button>
+          </div>
+        </div>
+
+        <div class="ie-divider"></div>
+
+        <!-- Recortar -->
+        <div>
+          <span class="ie-section-lbl">Recortar</span>
+          <div class="ie-crop-hint" id="crop-hint">Arrastra sobre la imagen para seleccionar el área</div>
+          <div class="ie-row" style="margin-top:.5rem">
+            <button class="ie-btn active" id="btn-crop-mode">✂ Activar recorte</button>
+          </div>
+          <div class="ie-row" style="margin-top:.4rem">
+            <button class="ie-btn" id="btn-apply-crop" disabled style="opacity:.4">Aplicar recorte</button>
+            <button class="ie-btn" id="btn-cancel-crop">Cancelar</button>
+          </div>
+          <!-- Proporciones rápidas -->
+          <div style="margin-top:.5rem">
+            <span class="ie-section-lbl" style="font-size:.53rem">Proporción rápida</span>
+            <div class="ie-row">
+              <button class="ie-btn" data-ratio="1:1">1:1</button>
+              <button class="ie-btn" data-ratio="4:3">4:3</button>
+              <button class="ie-btn" data-ratio="16:9">16:9</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="ie-divider"></div>
+
+        <!-- Redimensionar -->
+        <div>
+          <span class="ie-section-lbl">Redimensionar</span>
+          <div style="display:flex;gap:.4rem;align-items:center;margin-bottom:.4rem">
+            <input class="ie-input" id="ie-w" type="number" min="50" max="4000" placeholder="Ancho px">
+            <span style="color:rgba(183,228,199,.4);font-size:.7rem">×</span>
+            <input class="ie-input" id="ie-h" type="number" min="50" max="4000" placeholder="Alto px">
+          </div>
+          <div class="ie-row">
+            <button class="ie-btn" id="btn-lock-ratio">🔒 Proporción</button>
+            <button class="ie-btn" id="btn-apply-size">Aplicar</button>
+          </div>
+          <!-- Tamaños rápidos -->
+          <div style="margin-top:.5rem">
+            <span class="ie-section-lbl" style="font-size:.53rem">Tamaños rápidos</span>
+            <div class="ie-row">
+              <button class="ie-btn" data-preset="1200">1200px</button>
+              <button class="ie-btn" data-preset="800">800px</button>
+              <button class="ie-btn" data-preset="400">400px</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="ie-divider"></div>
+
+        <!-- Compresión -->
+        <div>
+          <span class="ie-section-lbl">Compresión / calidad</span>
+          <div class="ie-row" style="margin-bottom:.3rem">
+            <span style="font-family:'DM Mono',monospace;font-size:.6rem;color:rgba(183,228,199,.5)">Calidad</span>
+            <span class="ie-val" id="ie-quality-val">80%</span>
+          </div>
+          <input class="ie-slider" id="ie-quality" type="range" min="10" max="100" value="80">
+          <div class="ie-size-info" id="ie-size-info">Tamaño estimado: —</div>
+        </div>
+
+        <div class="ie-divider"></div>
+
+        <!-- Info -->
+        <div>
+          <span class="ie-section-lbl">Información</span>
+          <div style="font-family:'DM Mono',monospace;font-size:.6rem;color:rgba(183,228,199,.45);line-height:1.9">
+            <div>Ancho: <span id="ie-info-w" style="color:#52B788">—</span></div>
+            <div>Alto: <span id="ie-info-h" style="color:#52B788">—</span></div>
+            <div>Original: <span id="ie-info-orig" style="color:#52B788">—</span></div>
+          </div>
+        </div>
+
+        <div class="ie-divider"></div>
+
+        <!-- Guardar -->
+        <div>
+          <button class="ie-save-btn" id="btn-ie-save">✓ Guardar foto</button>
+          <button class="ie-cancel-btn" style="margin-top:.4rem" onclick="closeImageEditor()">Cancelar sin guardar</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- Admin trigger (esquina inferior derecha) -->
 <button id="admin-trigger" title="Acceso administrador" onclick="document.getElementById('adm-login-overlay').classList.add('open')">⚙</button>
@@ -1877,26 +2067,12 @@ function renderSlot(slot) {
 document.getElementById('adm-file-input').addEventListener('change', function(e) {
   const file = e.target.files[0];
   if (!file || !currentSlot) return;
-  const maxMB = 8;
-  if (file.size > maxMB * 1024 * 1024) {
-    admToast(`El archivo es muy grande. Máximo ${maxMB}MB`, 'err');
-    this.value = '';
-    return;
+  if (file.size > 20 * 1024 * 1024) {
+    admToast('Archivo muy grande. Máximo 20MB', 'err');
+    this.value = ''; return;
   }
   const reader = new FileReader();
-  reader.onload = function(ev) {
-    photos[currentSlot] = {
-      src:  ev.target.result,
-      name: file.name,
-      type: file.type,
-      size: file.size,
-      date: new Date().toLocaleDateString('es-VE'),
-    };
-    savePhotos();
-    renderAllSlots();
-    admToast(`✓ Foto guardada — ${file.name}`);
-    currentSlot = null;
-  };
+  reader.onload = ev => openImageEditor(ev.target.result, file.name);
   reader.readAsDataURL(file);
   this.value = '';
 });
@@ -2022,6 +2198,338 @@ window.addEventListener('load', () => {
   loadPhotos();
   applyPhotosToLanding();
 });
+
+
+// ════════════════════════════════════════════
+// IMAGE EDITOR — Canvas API puro
+// ════════════════════════════════════════════
+(function(){
+  const state = {
+    img: null,
+    canvas: null,
+    ctx: null,
+    rotation: 0,
+    flipH: false,
+    flipV: false,
+    fileName: '',
+    cropMode: false,
+    cropRect: null,
+    cropStart: null,
+    ratioLock: true,
+    origW: 0,
+    origH: 0,
+    quality: 0.8,
+  };
+
+  function getEl(id){ return document.getElementById(id); }
+
+  // ── Abrir editor ──────────────────────────
+  window.openImageEditor = function(src, name) {
+    state.fileName = name;
+    state.cropMode = false;
+    state.cropRect = null;
+    state.rotation = 0;
+    state.flipH = false;
+    state.flipV = false;
+
+    const img = new Image();
+    img.onload = function() {
+      state.img = img;
+      state.origW = img.naturalWidth;
+      state.origH = img.naturalHeight;
+      state.canvas = getEl('ie-canvas');
+      state.ctx    = state.canvas.getContext('2d');
+      resetCanvasSize();
+      drawImage();
+      updateInfo();
+      updateSizeEstimate();
+      getEl('ie-w').value = img.naturalWidth;
+      getEl('ie-h').value = img.naturalHeight;
+      getEl('img-editor-overlay').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    };
+    img.src = src;
+  };
+
+  window.closeImageEditor = function() {
+    getEl('img-editor-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+    state.img = null;
+    exitCropMode();
+  };
+
+  // ── Canvas helpers ─────────────────────────
+  function resetCanvasSize() {
+    const r   = state.rotation;
+    const rot = (r === 90 || r === 270);
+    state.canvas.width  = rot ? state.img.naturalHeight : state.img.naturalWidth;
+    state.canvas.height = rot ? state.img.naturalWidth  : state.img.naturalHeight;
+  }
+
+  function drawImage() {
+    const c   = state.canvas;
+    const ctx = state.ctx;
+    const r   = state.rotation;
+    const rot = (r === 90 || r === 270);
+    c.width  = rot ? state.img.naturalHeight : state.img.naturalWidth;
+    c.height = rot ? state.img.naturalWidth  : state.img.naturalHeight;
+    ctx.save();
+    ctx.translate(c.width / 2, c.height / 2);
+    ctx.rotate(r * Math.PI / 180);
+    ctx.scale(state.flipH ? -1 : 1, state.flipV ? -1 : 1);
+    ctx.drawImage(state.img, -state.img.naturalWidth / 2, -state.img.naturalHeight / 2);
+    ctx.restore();
+    updateInfo();
+  }
+
+  function updateInfo() {
+    const c = state.canvas;
+    getEl('ie-info-w').textContent   = c.width + 'px';
+    getEl('ie-info-h').textContent   = c.height + 'px';
+    getEl('ie-info-orig').textContent = state.origW + '×' + state.origH;
+    getEl('ie-w').value = c.width;
+    getEl('ie-h').value = c.height;
+  }
+
+  function updateSizeEstimate() {
+    const q = state.quality;
+    try {
+      const data = state.canvas.toDataURL('image/jpeg', q);
+      const bytes = Math.round((data.length * 3) / 4 / 1024);
+      const txt   = bytes > 1024 ? (bytes/1024).toFixed(1)+' MB' : bytes+' KB';
+      getEl('ie-size-info').textContent = 'Tamaño estimado: ' + txt;
+    } catch(e) {}
+  }
+
+  // ── Rotate ────────────────────────────────
+  getEl('btn-rot-l').addEventListener('click', () => {
+    state.rotation = (state.rotation + 270) % 360;
+    drawImage(); exitCropMode();
+  });
+  getEl('btn-rot-r').addEventListener('click', () => {
+    state.rotation = (state.rotation + 90) % 360;
+    drawImage(); exitCropMode();
+  });
+
+  // ── Flip ──────────────────────────────────
+  getEl('btn-flip-h').addEventListener('click', () => { state.flipH = !state.flipH; drawImage(); });
+  getEl('btn-flip-v').addEventListener('click', () => { state.flipV = !state.flipV; drawImage(); });
+
+  // ── Crop mode ─────────────────────────────
+  getEl('btn-crop-mode').addEventListener('click', () => {
+    state.cropMode = !state.cropMode;
+    const btn = getEl('btn-crop-mode');
+    if (state.cropMode) {
+      btn.textContent = '✂ Modo activo';
+      btn.classList.add('active');
+      state.canvas.style.cursor = 'crosshair';
+      getEl('crop-hint').textContent = 'Arrastra sobre la imagen para seleccionar';
+    } else {
+      exitCropMode();
+    }
+  });
+
+  // Crop drag — mouse
+  let isDragging = false;
+  state.canvas = getEl('ie-canvas'); // ref antes del load
+
+  getEl('ie-canvas').addEventListener('mousedown', startCrop);
+  getEl('ie-canvas').addEventListener('mousemove', moveCrop);
+  getEl('ie-canvas').addEventListener('mouseup',   endCrop);
+
+  // Crop drag — touch (móvil)
+  getEl('ie-canvas').addEventListener('touchstart', e => { e.preventDefault(); startCrop(e.touches[0]); }, {passive:false});
+  getEl('ie-canvas').addEventListener('touchmove',  e => { e.preventDefault(); moveCrop(e.touches[0]); },  {passive:false});
+  getEl('ie-canvas').addEventListener('touchend',   e => { e.preventDefault(); endCrop(e.changedTouches[0]); }, {passive:false});
+
+  function canvasPos(e) {
+    const rect  = getEl('ie-canvas').getBoundingClientRect();
+    const scaleX = getEl('ie-canvas').width  / rect.width;
+    const scaleY = getEl('ie-canvas').height / rect.height;
+    return {
+      x: Math.round((e.clientX - rect.left) * scaleX),
+      y: Math.round((e.clientY - rect.top)  * scaleY),
+    };
+  }
+
+  function startCrop(e) {
+    if (!state.cropMode) return;
+    isDragging = true;
+    state.cropStart = canvasPos(e);
+    state.cropRect  = null;
+    getEl('crop-overlay').style.display = 'block';
+  }
+
+  function moveCrop(e) {
+    if (!isDragging || !state.cropMode) return;
+    const pos  = canvasPos(e);
+    const rect = getEl('ie-canvas').getBoundingClientRect();
+    const scaleX = rect.width  / getEl('ie-canvas').width;
+    const scaleY = rect.height / getEl('ie-canvas').height;
+    const x1 = Math.min(state.cropStart.x, pos.x);
+    const y1 = Math.min(state.cropStart.y, pos.y);
+    const x2 = Math.max(state.cropStart.x, pos.x);
+    const y2 = Math.max(state.cropStart.y, pos.y);
+    state.cropRect = { x:x1, y:y1, w:x2-x1, h:y2-y1 };
+    const ov = getEl('crop-overlay');
+    const cRect = getEl('ie-canvas').getBoundingClientRect();
+    ov.style.left   = (cRect.left + window.scrollX + x1*scaleX) + 'px';
+    ov.style.top    = (cRect.top  + window.scrollY + y1*scaleY) + 'px';
+    ov.style.width  = ((x2-x1)*scaleX) + 'px';
+    ov.style.height = ((y2-y1)*scaleY) + 'px';
+    ov.style.position = 'fixed';
+    ov.style.left   = (cRect.left + x1*scaleX) + 'px';
+    ov.style.top    = (cRect.top  + y1*scaleY) + 'px';
+  }
+
+  function endCrop(e) {
+    if (!isDragging) return;
+    isDragging = false;
+    if (state.cropRect && state.cropRect.w > 10 && state.cropRect.h > 10) {
+      const btn = getEl('btn-apply-crop');
+      btn.disabled = false;
+      btn.style.opacity = '1';
+      getEl('crop-hint').textContent = 'Área seleccionada. Clic en "Aplicar recorte".';
+    }
+  }
+
+  getEl('btn-apply-crop').addEventListener('click', () => {
+    if (!state.cropRect) return;
+    const { x, y, w, h } = state.cropRect;
+    const tmp     = document.createElement('canvas');
+    tmp.width  = w;
+    tmp.height = h;
+    tmp.getContext('2d').drawImage(state.canvas, x, y, w, h, 0, 0, w, h);
+    // Reemplazar canvas con el recortado
+    state.canvas.width  = w;
+    state.canvas.height = h;
+    state.ctx.drawImage(tmp, 0, 0);
+    exitCropMode();
+    updateInfo();
+    updateSizeEstimate();
+  });
+
+  getEl('btn-cancel-crop').addEventListener('click', exitCropMode);
+
+  function exitCropMode() {
+    state.cropMode = false;
+    state.cropRect = null;
+    isDragging     = false;
+    const btn = getEl('btn-crop-mode');
+    btn.textContent = '✂ Activar recorte';
+    btn.classList.remove('active');
+    if (state.canvas) state.canvas.style.cursor = 'default';
+    const ov = getEl('crop-overlay');
+    ov.style.display = 'none';
+    const applyBtn = getEl('btn-apply-crop');
+    applyBtn.disabled = true;
+    applyBtn.style.opacity = '0.4';
+    getEl('crop-hint').textContent = 'Arrastra sobre la imagen para seleccionar el área';
+  }
+
+  // ── Proporciones rápidas ──────────────────
+  document.querySelectorAll('[data-ratio]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const [rw, rh] = btn.dataset.ratio.split(':').map(Number);
+      const c  = getEl('ie-canvas');
+      const cw = c.width;
+      const ch = Math.round(cw * rh / rw);
+      const tmp = document.createElement('canvas');
+      tmp.width  = cw; tmp.height = ch;
+      tmp.getContext('2d').drawImage(c, 0, 0, cw, Math.min(c.height, ch), 0, 0, cw, ch);
+      c.width  = cw; c.height = ch;
+      state.ctx.drawImage(tmp, 0, 0);
+      updateInfo(); updateSizeEstimate();
+    });
+  });
+
+  // ── Redimensionar ─────────────────────────
+  let ratioLocked = true;
+  getEl('btn-lock-ratio').addEventListener('click', () => {
+    ratioLocked = !ratioLocked;
+    const btn = getEl('btn-lock-ratio');
+    btn.textContent = ratioLocked ? '🔒 Proporción' : '🔓 Libre';
+    btn.classList.toggle('active', ratioLocked);
+  });
+
+  getEl('ie-w').addEventListener('input', () => {
+    if (!ratioLocked) return;
+    const c   = getEl('ie-canvas');
+    const nw  = parseInt(getEl('ie-w').value) || c.width;
+    getEl('ie-h').value = Math.round(nw * c.height / c.width);
+  });
+  getEl('ie-h').addEventListener('input', () => {
+    if (!ratioLocked) return;
+    const c   = getEl('ie-canvas');
+    const nh  = parseInt(getEl('ie-h').value) || c.height;
+    getEl('ie-w').value = Math.round(nh * c.width / c.height);
+  });
+
+  getEl('btn-apply-size').addEventListener('click', () => {
+    const nw  = Math.max(50, parseInt(getEl('ie-w').value) || getEl('ie-canvas').width);
+    const nh  = Math.max(50, parseInt(getEl('ie-h').value) || getEl('ie-canvas').height);
+    const tmp = document.createElement('canvas');
+    tmp.width  = nw; tmp.height = nh;
+    tmp.getContext('2d').drawImage(getEl('ie-canvas'), 0, 0, nw, nh);
+    getEl('ie-canvas').width  = nw;
+    getEl('ie-canvas').height = nh;
+    state.ctx.drawImage(tmp, 0, 0);
+    updateInfo(); updateSizeEstimate();
+  });
+
+  // Tamaños rápidos (ancho máx)
+  document.querySelectorAll('[data-preset]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const mw  = parseInt(btn.dataset.preset);
+      const c   = getEl('ie-canvas');
+      if (c.width <= mw) return;
+      const nh  = Math.round(mw * c.height / c.width);
+      const tmp = document.createElement('canvas');
+      tmp.width  = mw; tmp.height = nh;
+      tmp.getContext('2d').drawImage(c, 0, 0, mw, nh);
+      c.width  = mw; c.height = nh;
+      state.ctx.drawImage(tmp, 0, 0);
+      getEl('ie-w').value = mw;
+      getEl('ie-h').value = nh;
+      updateInfo(); updateSizeEstimate();
+    });
+  });
+
+  // ── Calidad / compresión ──────────────────
+  getEl('ie-quality').addEventListener('input', function() {
+    state.quality = this.value / 100;
+    getEl('ie-quality-val').textContent = this.value + '%';
+    updateSizeEstimate();
+  });
+
+  // ── Guardar foto en el slot ───────────────
+  getEl('btn-ie-save').addEventListener('click', () => {
+    const q    = state.quality;
+    const data = getEl('ie-canvas').toDataURL('image/jpeg', q);
+    const bytes = Math.round((data.length * 3) / 4);
+    const kb    = Math.round(bytes / 1024);
+
+    if (bytes > 4.5 * 1024 * 1024) {
+      admToast('Imagen demasiado grande para guardar. Reduce calidad o tamaño.', 'err');
+      return;
+    }
+
+    photos[currentSlot] = {
+      src:  data,
+      name: state.fileName,
+      type: 'image/jpeg',
+      size: bytes,
+      date: new Date().toLocaleDateString('es-VE'),
+    };
+    savePhotos();
+    renderAllSlots();
+    closeImageEditor();
+    currentSlot = null;
+    admToast('✓ Foto guardada — ' + kb + ' KB');
+  });
+
+})(); // end IIFE
+
 </script>
 </body>
 </html>
