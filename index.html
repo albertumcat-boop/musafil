@@ -2117,33 +2117,53 @@ function applyPhotosToLanding() {
     'lab-hilatura':     '#tab-laboratorio .gallery-card:nth-child(3) .media-placeholder',
   };
 
+  // Mapa unificado: todos los slots del hero también usan img inyectada
+  const heroMap = {
+    'hero-main':    '.hero-img-main',
+    'hero-proceso': '.hero-visual-grid .hero-img-placeholder:nth-child(2)',
+    'hero-musafil': '.hero-visual-grid .hero-img-placeholder:nth-child(3)',
+  };
+
+  function injectImg(el, photo) {
+    if (!el) return;
+    // Asegurarse que el contenedor tenga position relative
+    el.style.position = 'relative';
+    el.style.overflow = 'hidden';
+    // Ocultar placeholders
+    el.querySelectorAll('.img-icon, .img-label, .media-icon, .adm-slot-empty-txt')
+      .forEach(ch => ch.style.display = 'none');
+    // Insertar o actualizar img
+    let img = el.querySelector('img.injected');
+    if (!img) {
+      img = document.createElement('img');
+      img.className = 'injected';
+      img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;';
+      el.appendChild(img);
+    }
+    img.src = photo.src;
+    img.alt = photo.name || '';
+  }
+
   Object.entries(photos).forEach(([slotId, photo]) => {
-    // Galería
+
+    // ── Hero slots (todos con img inyectada) ──
+    if (heroMap[slotId]) {
+      const el = document.querySelector(heroMap[slotId]);
+      injectImg(el, photo);
+    }
+
+    // ── Galería ───────────────────────────────
     if (galleryMap[slotId]) {
       const el = document.querySelector(galleryMap[slotId]);
-      if (el && !el.querySelector('img.injected')) {
-        el.innerHTML = `<img class="injected" src="${photo.src}" alt="${photo.name}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">`;
-      } else if (el) {
-        el.querySelector('img.injected').src = photo.src;
-      }
+      injectImg(el, photo);
     }
-    // Hero
-    if (slotId === 'hero-main') {
-      const el = document.querySelector('.hero-img-main');
-      if (el) {
-        el.style.backgroundImage = `url(${photo.src})`;
-        el.style.backgroundSize = 'cover';
-        el.style.backgroundPosition = 'center';
-        el.querySelector('.img-icon') && (el.querySelector('.img-icon').style.display = 'none');
-        el.querySelector('.img-label') && (el.querySelector('.img-label').style.display = 'none');
-      }
-    }
-    // Foto de Albert
+
+    // ── Foto de Albert ────────────────────────
     if (slotId === 'equipo-albert') {
       const el = document.querySelector('.founder-avatar');
       if (el) {
-        el.style.backgroundImage = `url(${photo.src})`;
-        el.style.backgroundSize = 'cover';
+        el.style.backgroundImage    = `url(${photo.src})`;
+        el.style.backgroundSize     = 'cover';
         el.style.backgroundPosition = 'center';
         el.textContent = '';
       }
