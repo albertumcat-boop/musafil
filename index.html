@@ -4,16 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Inmotex · Musafil — Fibra de Plátano / Denim Sostenible</title>
-
-<!-- Fuentes -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;500;700;800&display=swap" rel="stylesheet">
-
-<!-- Estilos -->
 <link rel="stylesheet" href="styles/main.css">
 <link rel="stylesheet" href="styles/admin.css">
-
-<!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
@@ -185,15 +179,20 @@
       </div>
     </div>
     <div class="gallery-card wide">
-      <div class="media-placeholder">
-        <div class="media-type-badge">🎥 Video</div>
-        <div class="media-icon">▶</div>
-        <div class="video-play-btn">▶</div>
+      <div class="media-placeholder" style="aspect-ratio:16/9;background:#000;border:none;">
+        <div class="media-type-badge">🎥 YouTube</div>
+        <iframe
+          src="https://www.youtube.com/embed/zKGRLvYWEAA?rel=0&modestbranding=1"
+          style="position:absolute;inset:0;width:100%;height:100%;border:none;"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen
+          title="Inmotex — Proceso de extracción de fibra de plátano">
+        </iframe>
       </div>
       <div class="gallery-card-info">
-        <div class="card-title">Recorrido por la finca proveedora</div>
-        <div class="card-desc">Video documental del proceso de recolección. Muestra las dimensiones del recurso disponible en la región.</div>
-        <div class="card-date">→ Agregar video aquí</div>
+        <div class="card-title">Proceso de extracción — campo El Vigía</div>
+        <div class="card-desc">Video del proceso mecánico de extracción de fibra de pseudotallo de plátano. Proceso propietario Inmotex.</div>
+        <div class="card-date">📍 El Vigía, Venezuela · 2026</div>
       </div>
     </div>
   </div>
@@ -346,15 +345,20 @@
   <!-- VIDEOS -->
   <div class="gallery-grid tab-content" id="tab-video">
     <div class="gallery-card wide">
-      <div class="media-placeholder">
-        <div class="media-type-badge">🎥 Video</div>
-        <div class="media-icon">🎬</div>
-        <div class="video-play-btn">▶</div>
+      <div class="media-placeholder" style="aspect-ratio:16/9;background:#000;border:none;">
+        <div class="media-type-badge">🎥 YouTube</div>
+        <iframe
+          src="https://www.youtube.com/embed/zKGRLvYWEAA?rel=0&modestbranding=1"
+          style="position:absolute;inset:0;width:100%;height:100%;border:none;"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen
+          title="Inmotex — Proceso de extracción de fibra de plátano">
+        </iframe>
       </div>
       <div class="gallery-card-info">
-        <div class="card-title">Video principal — proceso completo</div>
-        <div class="card-desc">Del pseudotallo al hilo. Documental de 3–5 minutos mostrando toda la cadena de producción Inmotex.</div>
-        <div class="card-date">→ Subir video aquí (YouTube / Vimeo embed)</div>
+        <div class="card-title">Proceso de extracción de fibra — Inmotex</div>
+        <div class="card-desc">Demostración del proceso mecánico de extracción de fibra de pseudotallo de plátano. Proceso propietario Inmotex.</div>
+        <div class="card-date">📍 El Vigía, Venezuela · 2026</div>
       </div>
     </div>
     <div class="gallery-card">
@@ -1092,6 +1096,13 @@
       <div class="adm-slots" id="slots-equipo"></div>
     </div>
 
+    <!-- Videos -->
+    <div class="adm-section">
+      <div class="adm-section-title">🎥 Videos de YouTube</div>
+      <p style="font-family:'DM Mono',monospace;font-size:.62rem;color:var(--adm-muted);margin-bottom:.85rem;line-height:1.6">Pega el link de YouTube en cada campo. Funciona con cualquier formato de URL.</p>
+      <div class="adm-slots" id="slots-videos"></div>
+    </div>
+
     <!-- Seguridad -->
     <div class="adm-section">
       <div class="adm-section-title">Seguridad — Cambiar clave</div>
@@ -1127,7 +1138,6 @@
 
 <!-- Firebase SDKs (compat v9 — funciona sin bundler) -->
 
-<!-- Scripts — orden importa -->
 <script src="js/firebase-config.js"></script>
 <script src="js/photos.js"></script>
 <script src="js/admin.js"></script>
