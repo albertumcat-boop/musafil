@@ -46,87 +46,112 @@ const CLOUDINARY_PRESET = 'wkw1pitw';
   window.uploadToCloudinary = async function () {
     if (!currentFile) return;
 
-    const btn = document.getElementById('ve-upload-btn');
-    const progress = document.getElementById('ve-progress');
-    const progressBar = document.getElementById('ve-progress-bar');
-    const progressTxt = document.getElementById('ve-progress-txt');
+    const btn        = document.getElementById('ve-upload-btn');
+    const progress   = document.getElementById('ve-progress');
+    const progressBar= document.getElementById('ve-progress-bar');
+    const progressTxt= document.getElementById('ve-progress-txt');
+    const spinner    = document.getElementById('ve-spinner');
+
+    function setPhase(phase, pct) {
+      progress.style.display = 'block';
+      if (phase === 'upload') {
+        progressBar.style.width = pct + '%';
+        progressBar.style.background = 'var(--adm-green)';
+        progressTxt.textContent = `Subiendo al servidor... ${pct}%`;
+        if (spinner) spinner.style.display = 'none';
+      } else if (phase === 'process') {
+        progressBar.style.width = '100%';
+        progressBar.style.background = 'var(--adm-brown)';
+        progressTxt.textContent = '⏳ Cloudinary procesando el video — puede tardar 1-2 minutos...';
+        if (spinner) spinner.style.display = 'inline';
+      } else if (phase === 'saving') {
+        progressBar.style.background = 'var(--adm-green2)';
+        progressTxt.textContent = '💾 Guardando en Firebase...';
+      }
+    }
+
+    function resetBtn() {
+      btn.disabled = false;
+      btn.textContent = '☁ Subir a Cloudinary';
+      progress.style.display = 'none';
+      progressBar.style.width = '0%';
+      if (spinner) spinner.style.display = 'none';
+    }
 
     btn.disabled    = true;
     btn.textContent = 'Subiendo...';
-    progress.style.display = 'block';
+    setPhase('upload', 0);
 
     try {
       const formData = new FormData();
-      formData.append('file',         currentFile);
+      formData.append('file',          currentFile);
       formData.append('upload_preset', CLOUDINARY_PRESET);
-      formData.append('folder',        'inmotex');
-      formData.append('resource_type', 'video');
 
-      const xhr = new XMLHttpRequest();
-      xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/video/upload`);
+      // Usar XHR para progreso real de subida
+      const result = await new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/video/upload`);
+        xhr.timeout = 600000; // 10 min para videos grandes
 
-      // Progreso real
-      xhr.upload.onprogress = e => {
-        if (e.lengthComputable) {
-          const pct = Math.round(e.loaded / e.total * 100);
-          progressBar.style.width = pct + '%';
-          progressTxt.textContent = pct < 100
-            ? `Subiendo... ${pct}%`
-            : 'Procesando en Cloudinary...';
-        }
-      };
-
-      xhr.onload = async () => {
-        if (xhr.status === 200) {
-          const res = JSON.parse(xhr.responseText);
-          const data = {
-            type:       'cloudinary',
-            url:        res.secure_url,
-            publicId:   res.public_id,
-            duration:   res.duration,
-            format:     res.format,
-            width:      res.width,
-            height:     res.height,
-            size:       res.bytes,
-            name:       currentFile.name,
-            date:       new Date().toLocaleDateString('es-VE'),
-          };
-          try {
-            await savePhotoToFirestore(currentSlotId, data);
-            applyPhotosToLanding();
-            renderAllSlots();
-            updateStats();
-            closeVideoEditor();
-            const sizeMB = (res.bytes / 1024 / 1024).toFixed(1);
-            admToast(`✓ Video subido — ${sizeMB} MB · ${res.duration?.toFixed(1)}s`);
-          } catch(e) {
-            admToast('Error al guardar en Firebase: ' + e.message, 'err');
+        xhr.upload.onprogress = e => {
+          if (e.lengthComputable) {
+            const pct = Math.round(e.loaded / e.total * 100);
+            setPhase('upload', pct);
+            // Al llegar a 100% de subida, Cloudinary empieza a procesar
+            if (pct === 100) setPhase('process');
           }
-        } else {
-          const err = JSON.parse(xhr.responseText);
-          admToast('Error Cloudinary: ' + (err.error?.message || xhr.status), 'err');
-        }
-        btn.disabled    = false;
-        btn.textContent = '☁ Subir a Cloudinary';
-        progress.style.display = 'none';
-        progressBar.style.width = '0%';
+        };
+
+        xhr.onload = () => {
+          if (xhr.status === 200) {
+            try { resolve(JSON.parse(xhr.responseText)); }
+            catch(e) { reject(new Error('Respuesta inválida de Cloudinary')); }
+          } else {
+            let msg = `Error ${xhr.status}`;
+            try { msg = JSON.parse(xhr.responseText).error?.message || msg; } catch(e){}
+            reject(new Error(msg));
+          }
+        };
+        xhr.onerror   = () => reject(new Error('Error de red. Verifica tu conexión.'));
+        xhr.ontimeout = () => reject(new Error('Tiempo agotado (10 min). Intenta con un video más corto.'));
+
+        xhr.send(formData);
+      });
+
+      // Cloudinary respondió correctamente
+      console.log('[Cloudinary] OK:', result.secure_url);
+      setPhase('saving');
+
+      const data = {
+        type:     'cloudinary',
+        url:      result.secure_url,
+        publicId: result.public_id  || '',
+        duration: result.duration   || 0,
+        format:   result.format     || '',
+        width:    result.width      || 0,
+        height:   result.height     || 0,
+        size:     result.bytes      || 0,
+        name:     currentFile.name,
+        date:     new Date().toLocaleDateString('es-VE'),
       };
 
-      xhr.onerror = () => {
-        admToast('Error de red al subir el video', 'err');
-        btn.disabled    = false;
-        btn.textContent = '☁ Subir a Cloudinary';
-        progress.style.display = 'none';
-      };
+      await savePhotoToFirestore(currentSlotId, data);
+      applyPhotosToLanding();
+      renderAllSlots();
+      updateStats();
+      closeVideoEditor();
 
-      xhr.send(formData);
+      const sizeMB = ((result.bytes||0) / 1024 / 1024).toFixed(1);
+      const dur    = result.duration ? ` · ${parseFloat(result.duration).toFixed(1)}s` : '';
+      admToast(`✓ Video guardado — ${sizeMB} MB${dur}`);
 
     } catch (err) {
+      console.error('[Cloudinary] Error:', err.message);
       admToast('Error: ' + err.message, 'err');
-      btn.disabled    = false;
-      btn.textContent = '☁ Subir a Cloudinary';
-      progress.style.display = 'none';
+      resetBtn();
+      return;
     }
+    resetBtn();
   };
 
   // ── Construir UI ───────────────────────────
@@ -181,15 +206,26 @@ const CLOUDINARY_PRESET = 'wkw1pitw';
 
           <!-- Barra de progreso -->
           <div id="ve-progress" style="display:none">
-            <div id="ve-progress-txt" class="ve-label" style="margin-bottom:.4rem">Subiendo...</div>
-            <div style="background:var(--adm-bg2);border-radius:20px;height:8px;overflow:hidden;
+            <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem">
+              <span id="ve-progress-txt" style="font-family:'DM Mono',monospace;font-size:.62rem;
+                color:var(--adm-text);flex:1">Subiendo...</span>
+              <span id="ve-spinner" style="display:none;font-size:.9rem;animation:spin 1s linear infinite">⏳</span>
+            </div>
+            <div style="background:var(--adm-bg2);border-radius:20px;height:10px;overflow:hidden;
                         border:1px solid var(--adm-border)">
               <div id="ve-progress-bar"
                 style="height:100%;width:0%;background:var(--adm-green);
-                       border-radius:20px;transition:width .3s">
+                       border-radius:20px;transition:width .4s,background .3s">
               </div>
             </div>
+            <div style="font-family:'DM Mono',monospace;font-size:.57rem;color:var(--adm-muted);
+              margin-top:.4rem;line-height:1.5">
+              No cierres esta ventana mientras se procesa el video.
+            </div>
           </div>
+          <style>
+            @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+          </style>
 
           <!-- Botones -->
           <div class="ve-btn-row">
