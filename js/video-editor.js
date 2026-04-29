@@ -43,115 +43,116 @@ const CLOUDINARY_PRESET = 'wkw1pitw';
   };
 
   // ── Subir a Cloudinary ─────────────────────
-  window.uploadToCloudinary = async function () {
+  window.uploadToCloudinary = function () {
     if (!currentFile) return;
 
-    const btn        = document.getElementById('ve-upload-btn');
-    const progress   = document.getElementById('ve-progress');
-    const progressBar= document.getElementById('ve-progress-bar');
-    const progressTxt= document.getElementById('ve-progress-txt');
-    const spinner    = document.getElementById('ve-spinner');
+    const btn         = document.getElementById('ve-upload-btn');
+    const progressDiv = document.getElementById('ve-progress');
+    const progressBar = document.getElementById('ve-progress-bar');
+    const progressTxt = document.getElementById('ve-progress-txt');
+    const errDiv      = document.getElementById('ve-error');
 
-    function setPhase(phase, pct) {
-      progress.style.display = 'block';
-      if (phase === 'upload') {
-        progressBar.style.width = pct + '%';
-        progressBar.style.background = 'var(--adm-green)';
-        progressTxt.textContent = `Subiendo al servidor... ${pct}%`;
-        if (spinner) spinner.style.display = 'none';
-      } else if (phase === 'process') {
-        progressBar.style.width = '100%';
-        progressBar.style.background = 'var(--adm-brown)';
-        progressTxt.textContent = '⏳ Cloudinary procesando el video — puede tardar 1-2 minutos...';
-        if (spinner) spinner.style.display = 'inline';
-      } else if (phase === 'saving') {
-        progressBar.style.background = 'var(--adm-green2)';
-        progressTxt.textContent = '💾 Guardando en Firebase...';
+    // Mostrar mensaje de error visible en la UI
+    function showError(msg) {
+      if (errDiv) {
+        errDiv.textContent = '⚠ ' + msg;
+        errDiv.style.display = 'block';
       }
+      btn.disabled    = false;
+      btn.textContent = '☁ Subir a Cloudinary';
+      progressDiv.style.display = 'none';
+      progressBar.style.width   = '0%';
     }
 
-    function resetBtn() {
-      btn.disabled = false;
-      btn.textContent = '☁ Subir a Cloudinary';
-      progress.style.display = 'none';
-      progressBar.style.width = '0%';
-      if (spinner) spinner.style.display = 'none';
+    function showStatus(msg, pct, color) {
+      progressDiv.style.display = 'block';
+      progressBar.style.width   = pct + '%';
+      progressBar.style.background = color || 'var(--adm-green)';
+      progressTxt.textContent   = msg;
+      if (errDiv) errDiv.style.display = 'none';
     }
 
     btn.disabled    = true;
-    btn.textContent = 'Subiendo...';
-    setPhase('upload', 0);
+    btn.textContent = 'Iniciando...';
+    if (errDiv) errDiv.style.display = 'none';
+    showStatus('Preparando subida...', 2, 'var(--adm-green)');
 
-    try {
-      const formData = new FormData();
-      formData.append('file',          currentFile);
-      formData.append('upload_preset', CLOUDINARY_PRESET);
+    const formData = new FormData();
+    formData.append('file',          currentFile);
+    formData.append('upload_preset', CLOUDINARY_PRESET);
 
-      // Usar XHR para progreso real de subida
-      const result = await new Promise((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/video/upload`);
-        xhr.timeout = 600000; // 10 min para videos grandes
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST',
+      'https://api.cloudinary.com/v1_1/' + CLOUDINARY_CLOUD + '/video/upload');
+    xhr.timeout = 600000;
 
-        xhr.upload.onprogress = e => {
-          if (e.lengthComputable) {
-            const pct = Math.round(e.loaded / e.total * 100);
-            setPhase('upload', pct);
-            // Al llegar a 100% de subida, Cloudinary empieza a procesar
-            if (pct === 100) setPhase('process');
-          }
+    xhr.upload.onprogress = function(e) {
+      if (!e.lengthComputable) return;
+      const pct = Math.round(e.loaded / e.total * 100);
+      if (pct < 100) {
+        showStatus('Subiendo... ' + pct + '%', pct, 'var(--adm-green)');
+      } else {
+        showStatus('✓ Subido. Cloudinary procesando (espera 1-2 min)...', 100, 'var(--adm-brown2)');
+        btn.textContent = 'Procesando...';
+      }
+    };
+
+    xhr.onload = function() {
+      if (xhr.status === 200) {
+        let res;
+        try { res = JSON.parse(xhr.responseText); }
+        catch(e) { showError('Respuesta inesperada de Cloudinary. Intenta de nuevo.'); return; }
+
+        if (!res.secure_url) {
+          showError('Cloudinary no devolvió URL. Error: ' + JSON.stringify(res.error || res));
+          return;
+        }
+
+        showStatus('💾 Guardando en Firebase...', 100, 'var(--adm-green2)');
+
+        const data = {
+          type:     'cloudinary',
+          url:      res.secure_url,
+          publicId: res.public_id || '',
+          duration: res.duration  || 0,
+          format:   res.format    || '',
+          width:    res.width     || 0,
+          height:   res.height    || 0,
+          size:     res.bytes     || 0,
+          name:     currentFile.name,
+          date:     new Date().toLocaleDateString('es-VE'),
         };
 
-        xhr.onload = () => {
-          if (xhr.status === 200) {
-            try { resolve(JSON.parse(xhr.responseText)); }
-            catch(e) { reject(new Error('Respuesta inválida de Cloudinary')); }
-          } else {
-            let msg = `Error ${xhr.status}`;
-            try { msg = JSON.parse(xhr.responseText).error?.message || msg; } catch(e){}
-            reject(new Error(msg));
-          }
-        };
-        xhr.onerror   = () => reject(new Error('Error de red. Verifica tu conexión.'));
-        xhr.ontimeout = () => reject(new Error('Tiempo agotado (10 min). Intenta con un video más corto.'));
+        savePhotoToFirestore(currentSlotId, data)
+          .then(function() {
+            applyPhotosToLanding();
+            renderAllSlots();
+            updateStats();
+            closeVideoEditor();
+            const mb  = ((res.bytes||0)/1024/1024).toFixed(1);
+            const dur = res.duration ? ' · ' + parseFloat(res.duration).toFixed(1) + 's' : '';
+            admToast('✓ Video guardado — ' + mb + ' MB' + dur);
+          })
+          .catch(function(e) {
+            showError('Firebase error: ' + e.message);
+          });
 
-        xhr.send(formData);
-      });
+      } else {
+        let msg = 'Error HTTP ' + xhr.status;
+        try { msg = JSON.parse(xhr.responseText).error?.message || msg; } catch(e) {}
+        showError(msg);
+      }
+    };
 
-      // Cloudinary respondió correctamente
-      console.log('[Cloudinary] OK:', result.secure_url);
-      setPhase('saving');
+    xhr.onerror = function() {
+      showError('Error de red. Verifica tu conexión a internet.');
+    };
 
-      const data = {
-        type:     'cloudinary',
-        url:      result.secure_url,
-        publicId: result.public_id  || '',
-        duration: result.duration   || 0,
-        format:   result.format     || '',
-        width:    result.width      || 0,
-        height:   result.height     || 0,
-        size:     result.bytes      || 0,
-        name:     currentFile.name,
-        date:     new Date().toLocaleDateString('es-VE'),
-      };
+    xhr.ontimeout = function() {
+      showError('Tiempo agotado (10 min). Intenta con un video más corto.');
+    };
 
-      await savePhotoToFirestore(currentSlotId, data);
-      applyPhotosToLanding();
-      renderAllSlots();
-      updateStats();
-      closeVideoEditor();
-
-      const sizeMB = ((result.bytes||0) / 1024 / 1024).toFixed(1);
-      const dur    = result.duration ? ` · ${parseFloat(result.duration).toFixed(1)}s` : '';
-      admToast(`✓ Video guardado — ${sizeMB} MB${dur}`);
-
-    } catch (err) {
-      console.error('[Cloudinary] Error:', err.message);
-      admToast('Error: ' + err.message, 'err');
-      resetBtn();
-      return;
-    }
-    resetBtn();
+    xhr.send(formData);
   };
 
   // ── Construir UI ───────────────────────────
@@ -228,6 +229,13 @@ const CLOUDINARY_PRESET = 'wkw1pitw';
           </style>
 
           <!-- Botones -->
+          <!-- Error visible en pantalla -->
+          <div id="ve-error" style="display:none;background:rgba(185,28,28,0.1);
+            border:1px solid rgba(185,28,28,0.3);border-radius:8px;padding:.7rem 1rem;
+            font-family:'DM Mono',monospace;font-size:.62rem;color:#B91C1C;
+            line-height:1.6;word-break:break-word">
+          </div>
+
           <div class="ve-btn-row">
             <button class="ve-btn-secondary" onclick="closeVideoEditor()">
               Cancelar
