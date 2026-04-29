@@ -913,7 +913,7 @@
 
 
 <!-- ════ IMAGE EDITOR MODAL ════ -->
-<div id="img-editor-overlay">
+<div id="img-editor-overlay" style="display:none">
   <div class="img-editor-box">
     <div class="ie-header">
       <div class="ie-title">✂ Editor de imagen</div>
@@ -1130,9 +1130,92 @@
 </div>
 
 <!-- Hidden file input -->
-<input type="file" id="adm-file-input" accept="image/*,video/*" multiple>
+<input type="file" id="adm-file-input" accept="image/*,video/*">
 
 <!-- Toast -->
+<!-- ════ VIDEO EDITOR MODAL ════ -->
+<div id="video-editor-overlay" style="display:none">
+  <div class="ve-box">
+    <div class="ve-header">
+      <div class="ve-title">🎬 Editor de video</div>
+      <button class="adm-close-btn" onclick="closeVideoEditor()">✕ Cerrar</button>
+    </div>
+    <div class="ve-body">
+
+      <!-- Preview -->
+      <div class="ve-preview-wrap">
+        <video id="ve-preview" playsinline preload="metadata"></video>
+      </div>
+      <div class="ve-progress-track"><div id="ve-progress-fill"></div></div>
+
+      <!-- Controles -->
+      <div class="ve-controls">
+        <button class="ve-btn" id="ve-play-btn">▶ Play</button>
+        <span style="font-family:'DM Mono',monospace;font-size:.62rem;color:var(--adm-muted)">
+          Duración: <span id="ve-duration">—</span>
+        </span>
+      </div>
+
+      <!-- Recorte -->
+      <div>
+        <span class="ve-section-lbl">✂ Recortar video</span>
+        <div class="ve-trim-wrap">
+          <div class="ve-trim-row">
+            <span class="ve-trim-lbl">Inicio</span>
+            <input class="ve-slider" type="range" id="ve-trim-start" min="0" value="0">
+            <span class="ve-time-val" id="ve-start-label">0:00</span>
+          </div>
+          <div class="ve-trim-row">
+            <span class="ve-trim-lbl">Fin</span>
+            <input class="ve-slider" type="range" id="ve-trim-end" min="0" value="0">
+            <span class="ve-time-val" id="ve-end-label">—</span>
+          </div>
+          <div id="ve-trim-info"></div>
+        </div>
+      </div>
+
+      <!-- Resolución -->
+      <div>
+        <span class="ve-section-lbl">📐 Resolución</span>
+        <div class="ve-res-row">
+          <button class="ve-res-btn active" data-res="480">480p</button>
+          <button class="ve-res-btn" data-res="360">360p</button>
+          <button class="ve-res-btn" data-res="240">240p</button>
+        </div>
+      </div>
+
+      <!-- Calidad -->
+      <div>
+        <span class="ve-section-lbl">🎚 Calidad</span>
+        <div class="ve-quality-row">
+          <span style="font-family:'DM Mono',monospace;font-size:.6rem;color:var(--adm-muted)">Calidad</span>
+          <input type="range" id="ve-quality" min="20" max="90" value="60">
+          <span id="ve-quality-val">60%</span>
+        </div>
+        <div id="ve-size-info">Tamaño estimado: —</div>
+
+        <!-- Barra de compresión -->
+        <div id="ve-progress-bar">
+          <div class="ve-compress-track">
+            <div id="ve-compress-progress"></div>
+          </div>
+          <div id="ve-compress-label">Comprimiendo...</div>
+        </div>
+      </div>
+
+      <!-- Nota de compatibilidad -->
+      <div class="ve-compat-note">
+        ℹ Usa <b>Chrome</b> o <b>Edge</b> en la PC para comprimir. En iPhone puede no funcionar — en ese caso sube desde la PC.
+      </div>
+
+      <!-- Guardar -->
+      <button class="ve-save-btn" id="ve-save-btn">✓ Comprimir y guardar</button>
+      <button class="ve-cancel-btn" onclick="closeVideoEditor()">Cancelar</button>
+
+    </div>
+  </div>
+</div>
+
 <div id="adm-toast"></div>
 
 
@@ -1142,6 +1225,7 @@
 <script src="js/photos.js"></script>
 <script src="js/admin.js"></script>
 <script src="js/editor.js"></script>
+<script src="js/video-editor.js"></script>
 <script src="js/main.js"></script>
 
 </body>
