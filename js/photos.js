@@ -122,6 +122,27 @@ function applyPhotosToLanding() {
       return;
     }
 
+    // ── Video Cloudinary ───────────────────────
+    if (data.type === 'cloudinary' && data.url) {
+      el.style.background = '#111';
+      el.style.position   = 'relative';
+      el.style.overflow   = 'hidden';
+      el.querySelectorAll('.media-icon,.video-play-btn,.img-label,.adm-slot-empty-txt,.media-type-badge')
+        .forEach(ch => ch.style.display = 'none');
+      let vid = el.querySelector('video.injected');
+      if (!vid) {
+        vid = document.createElement('video');
+        vid.className     = 'injected';
+        vid.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;';
+        vid.setAttribute('controls', '');
+        vid.setAttribute('playsinline', '');
+        vid.setAttribute('preload', 'metadata');
+        el.appendChild(vid);
+      }
+      vid.src = data.url;
+      return;
+    }
+
     // ── Video comprimido (base64 webm) ───────
     if (data.type === 'video-file' && data.src) {
       el.style.background = '#000';
