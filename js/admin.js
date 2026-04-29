@@ -118,35 +118,34 @@ function renderSlot(slot) {
   const hasVideo = isVideo && !!data?.url;
 
   if (isVideo) {
-    // ── Slot de video: muestra input de URL ──
-    const videoId = hasVideo ? extractYouTubeId(data.url) : '';
+    // ── Slot de video: botón de subida igual que foto ──
+    const hasVideoFile = !!data?.src;   // video comprimido guardado
     return `
-      <div class="adm-slot adm-slot-video">
-        <div class="adm-slot-preview" style="cursor:default;background:${hasVideo?'#000':'var(--adm-bg2)'}">
-          ${hasVideo
-            ? `<iframe src="https://www.youtube.com/embed/${videoId}?rel=0"
-                 style="position:absolute;inset:0;width:100%;height:100%;border:none;"
-                 allowfullscreen></iframe>`
+      <div class="adm-slot">
+        <div class="adm-slot-preview" data-slot="${slot.id}"
+          style="background:${hasVideoFile ? '#111' : 'var(--adm-bg2)'}">
+          ${hasVideoFile
+            ? `<video src="${data.src}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"
+                 muted playsinline></video>`
             : `<div class="adm-slot-icon">🎥</div>
                <div class="adm-slot-empty-txt">${slot.label}</div>`
           }
+          <div class="adm-slot-overlay">
+            <div style="font-size:1.5rem">${hasVideoFile ? '🔄' : '↑'}</div>
+            <div class="adm-overlay-txt">${hasVideoFile ? 'Cambiar video' : 'Subir video'}</div>
+          </div>
         </div>
         <div class="adm-slot-info">
-          <div class="adm-slot-name">${slot.label}</div>
-          <div style="display:flex;gap:.4rem;margin-top:.3rem">
-            <input
-              class="adm-video-input"
-              type="text"
-              placeholder="Pega el link de YouTube aquí"
-              value="${data?.url || ''}"
-              data-slot="${slot.id}"
-              style="flex:1;font-size:.58rem;padding:.35rem .5rem;border:1px solid var(--adm-border);
-                     border-radius:5px;background:var(--adm-bg);color:var(--adm-text);outline:none;font-family:'DM Mono',monospace;"
-            >
+          <div class="adm-slot-name" title="${data ? data.name : slot.label}">
+            ${data ? (data.name + (data.duration ? ' · ' + data.duration.toFixed(1) + 's' : '')) : slot.label}
           </div>
-          <div style="display:flex;gap:.4rem;margin-top:.35rem">
-            <div class="adm-action-btn" data-slot="${slot.id}" data-action="save-video">✓ Guardar</div>
-            ${hasVideo ? `<div class="adm-action-btn del" data-slot="${slot.id}" data-action="delete">✕</div>` : ''}
+          <div class="adm-slot-actions">
+            <div class="adm-action-btn" data-slot="${slot.id}" data-action="upload">
+              ${hasVideoFile ? '↑ Cambiar' : '↑ Subir'}
+            </div>
+            ${hasVideoFile
+              ? `<div class="adm-action-btn del" data-slot="${slot.id}" data-action="delete">✕</div>`
+              : ''}
           </div>
         </div>
       </div>`;
@@ -208,19 +207,13 @@ document.addEventListener('click', e => {
   if (action === 'upload') {
     window.currentSlot = slot;
     const inp = document.getElementById('adm-file-input');
-    const slotType = (window.SLOTS[Object.keys(window.SLOTS).find(sec => window.SLOTS[sec].some(s=>s.id===slot))] || []).find(s=>s.id===slot)?.type;
-    inp.accept = slotType==='video' ? 'video/*' : 'image/*';
+    const slotDef = Object.values(window.SLOTS).flat().find(s => s.id === slot);
+    inp.accept = slotDef?.type === 'video' ? 'video/*' : 'image/*';
     inp.click();
   }
   if (action === 'delete') deletePhoto(slot);
 
-  if (action === 'save-video') {
-    // Busca el input en el mismo slot
-    const input = btn.closest('.adm-slot')?.querySelector('.adm-video-input');
-    const url   = input?.value?.trim();
-    if (!url) { admToast('Pega un link de YouTube primero', 'err'); return; }
-    saveVideoUrl(slot, url);
-  }
+
 });
 
 // ── Guardar URL de video ──────────────────────
