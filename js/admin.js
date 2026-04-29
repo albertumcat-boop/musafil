@@ -119,14 +119,15 @@ function renderSlot(slot) {
 
   if (isVideo) {
     // ── Slot de video: botón de subida igual que foto ──
-    const hasVideoFile = !!data?.src;   // video comprimido guardado
+    const hasVideoFile = !!data?.src || !!data?.url;
+    const videoSrc = data?.url || data?.src || '';
     return `
       <div class="adm-slot">
         <div class="adm-slot-preview" data-slot="${slot.id}"
           style="background:${hasVideoFile ? '#111' : 'var(--adm-bg2)'}">
           ${hasVideoFile
-            ? `<video src="${data.src}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"
-                 muted playsinline></video>`
+            ? `<video src="${videoSrc}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"
+                 muted playsinline preload="metadata"></video>`
             : `<div class="adm-slot-icon">🎥</div>
                <div class="adm-slot-empty-txt">${slot.label}</div>`
           }
