@@ -15,6 +15,7 @@ window.currentSlot = null;
 
 // ── Mapa: slotId → selector DOM de la landing ──
 window.LANDING_MAP = {
+  // Fotos
   'hero-main':       '.hero-img-main',
   'hero-proceso':    '.hero-visual-grid .hero-img-placeholder:nth-child(2)',
   'hero-musafil':    '.hero-visual-grid .hero-img-placeholder:nth-child(3)',
@@ -33,6 +34,12 @@ window.LANDING_MAP = {
   'lab-resistencia': '#tab-laboratorio .gallery-card:nth-child(2) .media-placeholder',
   'lab-hilatura':    '#tab-laboratorio .gallery-card:nth-child(3) .media-placeholder',
   'equipo-albert':   '.founder-avatar',
+  // Videos
+  'campo-video':     '#tab-campo .gallery-card:nth-child(4) .media-placeholder',
+  'proc-video':      '#tab-proceso .gallery-card:nth-child(1) .media-placeholder',
+  'video-principal': '#tab-video .gallery-card:nth-child(1) .media-placeholder',
+  'video-finca':     '#tab-video .gallery-card:nth-child(2) .media-placeholder',
+  'video-maquina':   '#tab-video .gallery-card:nth-child(3) .media-placeholder',
 };
 
 // ── Cargar todas las fotos desde Firestore ──────
@@ -88,24 +95,46 @@ function injectImg(el, photo) {
 
 // ── Aplicar todas las fotos al DOM ─────────────
 function applyPhotosToLanding() {
-  Object.entries(window.photos).forEach(([slotId, photo]) => {
-    if (!photo || !photo.src) return;
+  Object.entries(window.photos).forEach(([slotId, data]) => {
+    if (!data) return;
     if (!window.LANDING_MAP[slotId]) return;
 
-    // Founder avatar — usa background-image
-    if (slotId === 'equipo-albert') {
-      const el = document.querySelector('.founder-avatar');
-      if (el) {
-        el.style.backgroundImage    = `url(${photo.src})`;
-        el.style.backgroundSize     = 'cover';
-        el.style.backgroundPosition = 'center';
-        el.textContent = '';
+    const el = document.querySelector(window.LANDING_MAP[slotId]);
+    if (!el) return;
+
+    // ── Video slot ──────────────────────────
+    if (data.type === 'video' && data.videoId) {
+      el.style.background = '#000';
+      el.style.position   = 'relative';
+      el.style.overflow   = 'hidden';
+      // Ocultar placeholders
+      el.querySelectorAll('.media-icon,.video-play-btn,.img-label')
+        .forEach(ch => ch.style.display = 'none');
+      // Insertar o actualizar iframe
+      let iframe = el.querySelector('iframe.injected');
+      if (!iframe) {
+        iframe = document.createElement('iframe');
+        iframe.className     = 'injected';
+        iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;';
+        iframe.setAttribute('allowfullscreen', '');
+        iframe.setAttribute('allow', 'accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture');
+        el.appendChild(iframe);
       }
+      iframe.src = `https://www.youtube.com/embed/${data.videoId}?rel=0&modestbranding=1`;
       return;
     }
 
-    const el = document.querySelector(window.LANDING_MAP[slotId]);
-    injectImg(el, photo);
+    // ── Founder avatar ──────────────────────
+    if (slotId === 'equipo-albert' && data.src) {
+      el.style.backgroundImage    = `url(${data.src})`;
+      el.style.backgroundSize     = 'cover';
+      el.style.backgroundPosition = 'center';
+      el.textContent = '';
+      return;
+    }
+
+    // ── Foto normal ─────────────────────────
+    if (data.src) injectImg(el, data);
   });
 }
 
