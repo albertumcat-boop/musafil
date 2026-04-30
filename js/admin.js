@@ -377,56 +377,41 @@ document.getElementById('adm-pwd-input')
   ?.addEventListener('keydown', e => { if (e.key === 'Enter') doAdminLogin(); });
 
 // ═══════════════════════════════════════════
-// EDITOR DE TEXTOS DE LA LANDING
+// EDITOR DE TEXTOS UNIVERSAL
+// Detecta automáticamente todos los elementos
+// con data-eid en la landing y los hace editables
 // ═══════════════════════════════════════════
 
-// Textos editables: { id, label, selector, property }
-const EDITABLE_TEXTS = [
-  { id: 'txt-hero-tag',    label: 'Hero — etiqueta pequeña',  selector: '.hero-tag',    prop: 'textContent' },
-  { id: 'txt-hero-title',  label: 'Hero — título principal',  selector: '.hero-title',  prop: 'innerHTML'   },
-  { id: 'txt-hero-sub',    label: 'Hero — subtítulo',         selector: '.hero-sub',    prop: 'textContent' },
-  { id: 'txt-hero-desc',   label: 'Hero — descripción',       selector: '.hero-desc',   prop: 'textContent' },
-  { id: 'txt-founder',     label: 'Equipo — nombre fundador', selector: '.founder-name',prop: 'textContent' },
-  { id: 'txt-founder-role',label: 'Equipo — cargo fundador',  selector: '.founder-role',prop: 'textContent' },
-  { id: 'txt-founder-desc',label: 'Equipo — bio fundador',    selector: '.founder-desc',prop: 'textContent' },
-  { id: 'txt-inv-amount',  label: 'Inversión — monto',        selector: '.inv-amount',  prop: 'textContent' },
-  { id: 'txt-inv-desc',    label: 'Inversión — descripción',  selector: '.inv-desc',    prop: 'textContent' },
-];
-
 const TEXTS_KEY = 'inmotex_texts';
-let savedTexts = {};
+let savedTexts  = {};
 
 // Cargar textos desde Firestore
 async function loadTexts() {
   try {
     const doc = await db.collection('config').doc('textos').get();
-    if (doc.exists) {
-      savedTexts = doc.data();
-      applyTextsToLanding();
-    }
+    if (doc.exists) { savedTexts = doc.data(); applyTextsToLanding(); }
   } catch(e) {
-    // Fallback: localStorage
     try { savedTexts = JSON.parse(localStorage.getItem(TEXTS_KEY) || '{}'); applyTextsToLanding(); } catch(e2){}
   }
 }
 
-// Aplicar textos al DOM de la landing
+// Aplicar textos al DOM
 function applyTextsToLanding() {
-  EDITABLE_TEXTS.forEach(field => {
-    if (!savedTexts[field.id]) return;
-    const el = document.querySelector(field.selector);
-    if (!el) return;
-    if (field.prop === 'innerHTML') {
-      el.innerHTML = savedTexts[field.id];
+  Object.entries(savedTexts).forEach(([eid, value]) => {
+    const el = document.querySelector('[data-eid="' + eid + '"]');
+    if (!el || !value) return;
+    // Si tiene hijos de estructura (em, strong) usa innerHTML
+    if (el.querySelector('em,strong,span')) {
+      el.innerHTML = value;
     } else {
-      el.textContent = savedTexts[field.id];
+      el.textContent = value;
     }
   });
 }
 
 // Guardar un texto
-async function saveText(id, value) {
-  savedTexts[id] = value;
+async function saveText(eid, value) {
+  savedTexts[eid] = value;
   try {
     await db.collection('config').doc('textos').set(savedTexts, { merge: true });
   } catch(e) {
@@ -435,62 +420,77 @@ async function saveText(id, value) {
   applyTextsToLanding();
 }
 
-// Renderizar el editor de textos en el panel admin
+// Renderizar editor de textos — detecta TODOS los data-eid del DOM
 function renderTextEditor() {
   const container = document.getElementById('text-editor-slots');
   if (!container) return;
 
-  container.innerHTML = EDITABLE_TEXTS.map(field => {
-    const currentVal = savedTexts[field.id] || '';
-    const el = document.querySelector(field.selector);
-    const placeholder = el ? (el.textContent || el.innerText).substring(0, 60).trim() : field.label;
-    const isLong = field.id.includes('desc') || field.id.includes('bio');
+  // Encontrar todos los elementos editables en la landing
+  const editableEls = Array.from(document.querySelectorAll('[data-eid]'));
+  if (!editableEls.length) {
+    container.innerHTML = '<div style="font-family:'DM Mono',monospace;font-size:.62rem;color:var(--adm-muted)">No se encontraron textos editables.</div>';
+    return;
+  }
 
-    return `
-      <div style="background:var(--adm-card);border:1px solid var(--adm-border);
-        border-radius:8px;padding:.85rem 1rem;">
-        <div style="font-family:'DM Mono',monospace;font-size:.58rem;color:var(--adm-green);
-          text-transform:uppercase;letter-spacing:.1em;margin-bottom:.5rem">
-          ${field.label}
-        </div>
-        ${isLong
-          ? `<textarea
-               id="txt-input-${field.id}"
-               rows="3"
-               style="width:100%;resize:vertical;font-family:'DM Mono',monospace;font-size:.72rem;
-                 padding:.6rem .75rem;border:1px solid var(--adm-border);border-radius:6px;
-                 background:var(--adm-bg);color:var(--adm-text);outline:none;line-height:1.6;"
-               placeholder="${placeholder.replace(/"/g, '&quot;')}"
-             >${currentVal}</textarea>`
-          : `<input type="text"
-               id="txt-input-${field.id}"
-               value="${currentVal.replace(/"/g, '&quot;')}"
-               placeholder="${placeholder.replace(/"/g, '&quot;')}"
-               style="width:100%;font-family:'DM Mono',monospace;font-size:.72rem;
-                 padding:.6rem .75rem;border:1px solid var(--adm-border);border-radius:6px;
-                 background:var(--adm-bg);color:var(--adm-text);outline:none;"
-             >`
-        }
-        <button onclick="saveSingleText('${field.id}')"
-          style="margin-top:.5rem;padding:.38rem 1rem;background:var(--adm-green);border:none;
-            color:#F7F2E8;font-family:'DM Mono',monospace;font-size:.6rem;font-weight:500;
-            text-transform:uppercase;letter-spacing:.06em;cursor:pointer;border-radius:6px;
-            transition:background .15s;"
-          onmouseover="this.style.background='var(--adm-green2)'"
-          onmouseout="this.style.background='var(--adm-green)'">
-          ✓ Guardar
-        </button>
-      </div>`;
-  }).join('');
+  // Agrupar por sección basado en el prefijo del eid
+  const groups = {};
+  editableEls.forEach(el => {
+    const eid     = el.dataset.eid;
+    const prefix  = eid.split('-')[0];
+    const labels  = {
+      hero:'Hero', stat:'Estadísticas', proc:'Proceso',
+      ev:'Galería', gal:'Galería', prod:'Producto',
+      founder:'Equipo', inv:'Inversión', contact:'Contacto',
+    };
+    const group = labels[prefix] || prefix;
+    if (!groups[group]) groups[group] = [];
+    groups[group].push({ eid, el });
+  });
+
+  container.innerHTML = Object.entries(groups).map(([group, items]) => `
+    <div style="margin-bottom:1.25rem">
+      <div style="font-family:'DM Mono',monospace;font-size:.58rem;color:var(--adm-green);
+        text-transform:uppercase;letter-spacing:.12em;margin-bottom:.6rem;
+        padding-bottom:.4rem;border-bottom:1px solid var(--adm-border2)">
+        ${group}
+      </div>
+      ${items.map(({eid, el}) => {
+        const currentVal = savedTexts[eid] || el.textContent?.trim() || el.innerText?.trim() || '';
+        const label = el.dataset.label || eid.replace(/-/g,' ').replace(/\w/g,l=>l.toUpperCase());
+        const isLong = currentVal.length > 80 || eid.includes('desc') || eid.includes('sub');
+        return `
+          <div style="background:var(--adm-card);border:1px solid var(--adm-border);
+            border-radius:8px;padding:.8rem 1rem;margin-bottom:.5rem;">
+            <div style="font-family:'DM Mono',monospace;font-size:.56rem;color:var(--adm-muted);
+              margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.08em">${label}</div>
+            ${isLong
+              ? `<textarea id="txt-${eid}" rows="3"
+                   style="width:100%;resize:vertical;font-family:'DM Mono',monospace;font-size:.72rem;
+                     padding:.55rem .7rem;border:1px solid var(--adm-border);border-radius:6px;
+                     background:var(--adm-bg);color:var(--adm-text);outline:none;line-height:1.6;
+                     font-family:inherit">${currentVal}</textarea>`
+              : `<input type="text" id="txt-${eid}" value="${currentVal.replace(/"/g,'&quot;').replace(/</g,'&lt;')}"
+                   style="width:100%;font-family:'DM Mono',monospace;font-size:.72rem;
+                     padding:.55rem .7rem;border:1px solid var(--adm-border);border-radius:6px;
+                     background:var(--adm-bg);color:var(--adm-text);outline:none;">`
+            }
+            <button onclick="saveSingleText('${eid}')"
+              style="margin-top:.45rem;padding:.35rem .9rem;background:var(--adm-green);border:none;
+                color:#F7F2E8;font-family:'DM Mono',monospace;font-size:.58rem;font-weight:500;
+                text-transform:uppercase;letter-spacing:.06em;cursor:pointer;border-radius:5px;">
+              ✓ Guardar
+            </button>
+          </div>`;
+      }).join('')}
+    </div>`
+  ).join('');
 }
 
-window.saveSingleText = async function(id) {
-  const input = document.getElementById('txt-input-' + id);
+window.saveSingleText = async function(eid) {
+  const input = document.getElementById('txt-' + eid);
   if (!input) return;
-  const val = input.value.trim();
-  await saveText(id, val);
-  admToast('✓ Texto guardado');
+  await saveText(eid, input.value.trim());
+  admToast('✓ Texto actualizado en la landing');
 };
 
-// Cargar textos al iniciar
 window.addEventListener('load', () => { loadTexts(); });
