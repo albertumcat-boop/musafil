@@ -427,12 +427,16 @@ function applyTextsToLanding() {
 // Guardar un texto
 async function saveText(eid, value) {
   savedTexts[eid] = value;
+  let savedToFirebase = false;
   try {
     await db.collection('config').doc('textos').set(savedTexts, { merge: true });
+    savedToFirebase = true;
   } catch(e) {
+    // Fallback a localStorage
     localStorage.setItem(TEXTS_KEY, JSON.stringify(savedTexts));
   }
   applyTextsToLanding();
+  return savedToFirebase;
 }
 
 // Renderizar editor de textos — detecta TODOS los data-eid del DOM
@@ -511,8 +515,28 @@ function renderTextEditor() {
 window.saveSingleText = async function(eid) {
   const input = document.getElementById('txt-' + eid);
   if (!input) return;
-  await saveText(eid, input.value.trim());
-  admToast('✓ Texto actualizado en la landing');
+  // Feedback visual en el botón
+  const btn = input.parentElement.querySelector('button');
+  const origText = btn ? btn.textContent : '';
+  if (btn) { btn.textContent = 'Guardando...'; btn.disabled = true; }
+  try {
+    const savedToFirebase = await saveText(eid, input.value.trim());
+    if (btn) {
+      btn.textContent = '✓ Guardado';
+      btn.style.background = 'var(--adm-green2)';
+      setTimeout(() => {
+        btn.textContent = origText;
+        btn.style.background = '';
+        btn.disabled = false;
+      }, 2000);
+    }
+    admToast(savedToFirebase
+      ? '✓ Guardado en Firebase — visible para todos'
+      : '✓ Guardado localmente (sin conexión a Firebase)');
+  } catch(e) {
+    if (btn) { btn.textContent = '⚠ Error'; btn.style.background = '#B91C1C'; btn.disabled = false; }
+    admToast('Error al guardar: ' + e.message, 'err');
+  }
 };
 
 window.addEventListener('load', () => { loadTexts(); });
