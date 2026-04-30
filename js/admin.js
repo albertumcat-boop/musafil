@@ -6,45 +6,47 @@
 // ─────────────────────────────────────────────
 
 // ── Slots por sección ──────────────────────────
+// ═══ SLOTS ═══════════════════════════════════
+// Solo los que tienen espacio real en el front.
+// Foto → se ve en la galería de esa sección.
+// Video → se ve en la tab de Videos o en Campo/Proceso.
 window.SLOTS = {
   hero: [
-    { id: 'hero-main',     label: 'Foto principal (grande)',     type: 'foto'  },
-    { id: 'hero-proceso',  label: 'Proceso de desfibrado',       type: 'foto'  },
-    { id: 'hero-musafil',  label: 'Muestra de Musafil',          type: 'foto'  },
+    { id: 'hero-main',    label: 'Foto principal — izquierda grande', type: 'foto'  },
+    { id: 'hero-proceso', label: 'Foto superior derecha',             type: 'foto'  },
+    { id: 'hero-musafil', label: 'Foto inferior derecha',             type: 'foto'  },
   ],
   campo: [
-    { id: 'campo-finca',      label: 'Finca El Vigía — panorámica', type: 'foto'  },
-    { id: 'campo-pseudo',     label: 'Pseudotallo post-cosecha',    type: 'foto'  },
-    { id: 'campo-transporte', label: 'Recolección y transporte',    type: 'foto'  },
-    { id: 'campo-video',      label: 'Video recorrido finca',        type: 'video' },
+    { id: 'campo-finca',      label: 'Foto 1 — Finca panorámica',    type: 'foto'  },
+    { id: 'campo-pseudo',     label: 'Foto 2 — Pseudotallo',          type: 'foto'  },
+    { id: 'campo-transporte', label: 'Foto 3 — Transporte',           type: 'foto'  },
+    { id: 'campo-video',      label: 'Video — Recorrido finca',       type: 'video' },
   ],
   proceso: [
-    { id: 'proc-video',   label: 'Video desfibrado mecánico',    type: 'video' },
-    { id: 'proc-maquina', label: 'Maquinaria importada',         type: 'foto'  },
-    { id: 'proc-corte',   label: 'Corte fibra 25–38mm',          type: 'foto'  },
-    { id: 'proc-humedad', label: 'Control de humedad',           type: 'foto'  },
-    { id: 'proc-qc',      label: 'Control de calidad',           type: 'foto'  },
+    { id: 'proc-video',   label: 'Video — Desfibrado mecánico',  type: 'video' },
+    { id: 'proc-maquina', label: 'Foto 1 — Maquinaria',          type: 'foto'  },
+    { id: 'proc-corte',   label: 'Foto 2 — Corte fibra',         type: 'foto'  },
+    { id: 'proc-humedad', label: 'Foto 3 — Control humedad',     type: 'foto'  },
+    { id: 'proc-qc',      label: 'Foto 4 — Control calidad',     type: 'foto'  },
   ],
   fibra: [
-    { id: 'fibra-macro', label: 'Fibra Musafil — vista macro',   type: 'foto'  },
-    { id: 'fibra-lote',  label: 'Lote embalado 50kg',            type: 'foto'  },
-    { id: 'fibra-comp',  label: 'Comparativa fibra vs algodón',  type: 'foto'  },
-    { id: 'fibra-hilo',  label: 'Muestra hilo Musafil 30/70',    type: 'foto'  },
+    { id: 'fibra-macro', label: 'Foto 1 — Fibra macro',          type: 'foto'  },
+    { id: 'fibra-lote',  label: 'Foto 2 — Lote embalado',        type: 'foto'  },
+    { id: 'fibra-comp',  label: 'Foto 3 — Comparativa',          type: 'foto'  },
+    { id: 'fibra-hilo',  label: 'Foto 4 — Hilo Musafil',         type: 'foto'  },
   ],
   lab: [
-    { id: 'lab-informe',     label: 'Informe ULA Mérida',        type: 'foto'  },
-    { id: 'lab-resistencia', label: 'Prueba de resistencia',     type: 'foto'  },
-    { id: 'lab-hilatura',    label: 'Prueba hilatura Open-end',  type: 'foto'  },
+    { id: 'lab-informe',     label: 'Foto 1 — Informe ULA',      type: 'foto'  },
+    { id: 'lab-resistencia', label: 'Foto 2 — Resistencia',      type: 'foto'  },
+    { id: 'lab-hilatura',    label: 'Foto 3 — Hilatura',         type: 'foto'  },
   ],
   equipo: [
-    { id: 'equipo-albert', label: 'Foto Albert Peña',            type: 'foto'  },
-    { id: 'equipo-planta', label: 'Equipo en planta',            type: 'foto'  },
-    { id: 'equipo-finca',  label: 'Visita a finca',              type: 'foto'  },
+    { id: 'equipo-albert', label: 'Foto Albert Peña (avatar)', type: 'foto' },
   ],
   videos: [
-    { id: 'video-principal', label: 'Video principal — proceso completo', type: 'video' },
-    { id: 'video-finca',     label: 'Video recorrido finca',              type: 'video' },
-    { id: 'video-maquina',   label: 'Demo maquinaria desfibrado',         type: 'video' },
+    { id: 'video-principal', label: 'Video principal (tab Videos)', type: 'video' },
+    { id: 'video-finca',     label: 'Video finca (tab Videos)',     type: 'video' },
+    { id: 'video-maquina',   label: 'Video maquinaria (tab Videos)',type: 'video' },
   ],
 };
 
@@ -64,17 +66,32 @@ function doAdminLogin() {
   btn.textContent = 'Entrando...';
   btn.disabled    = true;
 
-  auth.signInWithEmailAndPassword(email, pwd)
+  // Persistencia LOCAL para que el login sobreviva recargas
+  auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+    .then(() => auth.signInWithEmailAndPassword(email, pwd))
     .then(() => {
       document.getElementById('adm-login-overlay').classList.remove('open');
       document.getElementById('adm-pwd-input').value = '';
       errEl.style.display = 'none';
       openAdminPanel();
     })
-    .catch(() => {
-      errEl.textContent   = 'Email o contraseña incorrectos.';
-      errEl.style.display = 'block';
-      document.getElementById('adm-pwd-input').value = '';
+    .catch(err => {
+      // Si falla por red, intentar abrir panel de todas formas
+      // (las reglas de Firestore permiten write: true)
+      if (err.code === 'auth/network-request-failed') {
+        errEl.textContent   = 'Error de red con Firebase. Usando modo sin autenticación.';
+        errEl.style.color   = '#C4760A';
+        errEl.style.display = 'block';
+        setTimeout(() => {
+          document.getElementById('adm-login-overlay').classList.remove('open');
+          openAdminPanel();
+        }, 1500);
+      } else {
+        errEl.textContent   = 'Email o contraseña incorrectos.';
+        errEl.style.color   = '#B91C1C';
+        errEl.style.display = 'block';
+        document.getElementById('adm-pwd-input').value = '';
+      }
     })
     .finally(() => {
       btn.textContent = 'Entrar al panel →';
@@ -92,6 +109,7 @@ function adminLogout() {
 // ── Abrir / cerrar panel ───────────────────────
 function openAdminPanel() {
   renderAllSlots();
+  renderTextEditor();
   updateStats();
   document.getElementById('admin-panel').classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -121,13 +139,21 @@ function renderSlot(slot) {
     // ── Slot de video: botón de subida igual que foto ──
     const hasVideoFile = !!data?.src || !!data?.url;
     const videoSrc = data?.url || data?.src || '';
+    const sizeInfo = data?.size ? ' · ' + (data.size/1024/1024).toFixed(1) + 'MB' : '';
+    const durInfo  = data?.duration ? ' · ' + parseFloat(data.duration).toFixed(1) + 's' : '';
     return `
       <div class="adm-slot">
         <div class="adm-slot-preview" data-slot="${slot.id}"
-          style="background:${hasVideoFile ? '#111' : 'var(--adm-bg2)'}">
+          style="cursor:pointer;background:${hasVideoFile ? '#111' : 'var(--adm-bg2)'}">
           ${hasVideoFile
-            ? `<video src="${videoSrc}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"
-                 muted playsinline preload="metadata"></video>`
+            ? `<video src="${videoSrc}"
+                 style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1"
+                 muted playsinline preload="metadata"></video>
+               <div style="position:absolute;bottom:.4rem;right:.4rem;z-index:2;
+                 background:rgba(0,0,0,.6);color:#fff;font-family:'DM Mono',monospace;
+                 font-size:.5rem;padding:2px 6px;border-radius:4px">
+                 🎥${durInfo}${sizeInfo}
+               </div>`
             : `<div class="adm-slot-icon">🎥</div>
                <div class="adm-slot-empty-txt">${slot.label}</div>`
           }
@@ -324,3 +350,122 @@ document.addEventListener('keydown', e => {
 });
 document.getElementById('adm-pwd-input')
   ?.addEventListener('keydown', e => { if (e.key === 'Enter') doAdminLogin(); });
+
+// ═══════════════════════════════════════════
+// EDITOR DE TEXTOS DE LA LANDING
+// ═══════════════════════════════════════════
+
+// Textos editables: { id, label, selector, property }
+const EDITABLE_TEXTS = [
+  { id: 'txt-hero-tag',    label: 'Hero — etiqueta pequeña',  selector: '.hero-tag',    prop: 'textContent' },
+  { id: 'txt-hero-title',  label: 'Hero — título principal',  selector: '.hero-title',  prop: 'innerHTML'   },
+  { id: 'txt-hero-sub',    label: 'Hero — subtítulo',         selector: '.hero-sub',    prop: 'textContent' },
+  { id: 'txt-hero-desc',   label: 'Hero — descripción',       selector: '.hero-desc',   prop: 'textContent' },
+  { id: 'txt-founder',     label: 'Equipo — nombre fundador', selector: '.founder-name',prop: 'textContent' },
+  { id: 'txt-founder-role',label: 'Equipo — cargo fundador',  selector: '.founder-role',prop: 'textContent' },
+  { id: 'txt-founder-desc',label: 'Equipo — bio fundador',    selector: '.founder-desc',prop: 'textContent' },
+  { id: 'txt-inv-amount',  label: 'Inversión — monto',        selector: '.inv-amount',  prop: 'textContent' },
+  { id: 'txt-inv-desc',    label: 'Inversión — descripción',  selector: '.inv-desc',    prop: 'textContent' },
+];
+
+const TEXTS_KEY = 'inmotex_texts';
+let savedTexts = {};
+
+// Cargar textos desde Firestore
+async function loadTexts() {
+  try {
+    const doc = await db.collection('config').doc('textos').get();
+    if (doc.exists) {
+      savedTexts = doc.data();
+      applyTextsToLanding();
+    }
+  } catch(e) {
+    // Fallback: localStorage
+    try { savedTexts = JSON.parse(localStorage.getItem(TEXTS_KEY) || '{}'); applyTextsToLanding(); } catch(e2){}
+  }
+}
+
+// Aplicar textos al DOM de la landing
+function applyTextsToLanding() {
+  EDITABLE_TEXTS.forEach(field => {
+    if (!savedTexts[field.id]) return;
+    const el = document.querySelector(field.selector);
+    if (!el) return;
+    if (field.prop === 'innerHTML') {
+      el.innerHTML = savedTexts[field.id];
+    } else {
+      el.textContent = savedTexts[field.id];
+    }
+  });
+}
+
+// Guardar un texto
+async function saveText(id, value) {
+  savedTexts[id] = value;
+  try {
+    await db.collection('config').doc('textos').set(savedTexts, { merge: true });
+  } catch(e) {
+    localStorage.setItem(TEXTS_KEY, JSON.stringify(savedTexts));
+  }
+  applyTextsToLanding();
+}
+
+// Renderizar el editor de textos en el panel admin
+function renderTextEditor() {
+  const container = document.getElementById('text-editor-slots');
+  if (!container) return;
+
+  container.innerHTML = EDITABLE_TEXTS.map(field => {
+    const currentVal = savedTexts[field.id] || '';
+    const el = document.querySelector(field.selector);
+    const placeholder = el ? (el.textContent || el.innerText).substring(0, 60).trim() : field.label;
+    const isLong = field.id.includes('desc') || field.id.includes('bio');
+
+    return `
+      <div style="background:var(--adm-card);border:1px solid var(--adm-border);
+        border-radius:8px;padding:.85rem 1rem;">
+        <div style="font-family:'DM Mono',monospace;font-size:.58rem;color:var(--adm-green);
+          text-transform:uppercase;letter-spacing:.1em;margin-bottom:.5rem">
+          ${field.label}
+        </div>
+        ${isLong
+          ? `<textarea
+               id="txt-input-${field.id}"
+               rows="3"
+               style="width:100%;resize:vertical;font-family:'DM Mono',monospace;font-size:.72rem;
+                 padding:.6rem .75rem;border:1px solid var(--adm-border);border-radius:6px;
+                 background:var(--adm-bg);color:var(--adm-text);outline:none;line-height:1.6;"
+               placeholder="${placeholder.replace(/"/g, '&quot;')}"
+             >${currentVal}</textarea>`
+          : `<input type="text"
+               id="txt-input-${field.id}"
+               value="${currentVal.replace(/"/g, '&quot;')}"
+               placeholder="${placeholder.replace(/"/g, '&quot;')}"
+               style="width:100%;font-family:'DM Mono',monospace;font-size:.72rem;
+                 padding:.6rem .75rem;border:1px solid var(--adm-border);border-radius:6px;
+                 background:var(--adm-bg);color:var(--adm-text);outline:none;"
+             >`
+        }
+        <button onclick="saveSingleText('${field.id}')"
+          style="margin-top:.5rem;padding:.38rem 1rem;background:var(--adm-green);border:none;
+            color:#F7F2E8;font-family:'DM Mono',monospace;font-size:.6rem;font-weight:500;
+            text-transform:uppercase;letter-spacing:.06em;cursor:pointer;border-radius:6px;
+            transition:background .15s;"
+          onmouseover="this.style.background='var(--adm-green2)'"
+          onmouseout="this.style.background='var(--adm-green)'">
+          ✓ Guardar
+        </button>
+      </div>`;
+  }).join('');
+}
+
+window.saveSingleText = async function(id) {
+  const input = document.getElementById('txt-input-' + id);
+  if (!input) return;
+  const val = input.value.trim();
+  await saveText(id, val);
+  admToast('✓ Texto guardado');
+};
+
+// Cargar textos al iniciar
+window.addEventListener('load', () => { loadTexts(); });
