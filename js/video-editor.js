@@ -5,7 +5,7 @@
 // Cloud: su0vdcvx  |  Preset: wkw1pitw
 // ─────────────────────────────────────────────
 
-const CLOUDINARY_CLOUD  = 'su0vdcvx';
+const CLOUDINARY_CLOUD  = 'dsu0vdcvx';
 const CLOUDINARY_PRESET = 'wkw1pitw';
 
 (function () {
