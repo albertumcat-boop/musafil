@@ -179,6 +179,7 @@ function renderSlot(slot) {
   }
 
   // ── Slot de foto normal ──
+  const caption = (data && data.caption) ? data.caption : '';
   return `
     <div class="adm-slot">
       <div class="adm-slot-preview" data-slot="${slot.id}">
@@ -197,6 +198,21 @@ function renderSlot(slot) {
         <div class="adm-slot-name" title="${data ? data.name : slot.label}">
           ${data ? data.name : slot.label}
         </div>
+        ${hasFoto ? `
+        <input type="text"
+          class="adm-caption-input"
+          data-slot="${slot.id}"
+          placeholder="Título o descripción de la foto..."
+          value="${caption.replace(/"/g,'&quot;')}"
+          style="width:100%;margin:.35rem 0;padding:.35rem .5rem;font-family:'DM Mono',monospace;
+            font-size:.58rem;border:1px solid var(--adm-border);border-radius:5px;
+            background:var(--adm-bg);color:var(--adm-text);outline:none;">
+        <div style="display:flex;gap:.4rem;margin-bottom:.35rem">
+          <div class="adm-action-btn" data-slot="${slot.id}" data-action="save-caption"
+            style="background:var(--adm-green);color:#fff;border-color:var(--adm-green)">
+            ✓ Guardar título
+          </div>
+        </div>` : ''}
         <div class="adm-slot-actions">
           <div class="adm-action-btn" data-slot="${slot.id}" data-action="upload">
             ${hasFoto ? '↑ Cambiar' : '↑ Subir'}
@@ -240,7 +256,16 @@ document.addEventListener('click', e => {
   }
   if (action === 'delete') deletePhoto(slot);
 
-
+  if (action === 'save-caption') {
+    const input = btn.closest('.adm-slot')?.querySelector('.adm-caption-input');
+    const caption = input?.value?.trim() || '';
+    const photo = window.photos[slot];
+    if (!photo) return;
+    photo.caption = caption;
+    savePhotoToFirestore(slot, photo)
+      .then(() => { applyPhotosToLanding(); admToast('✓ Título guardado'); })
+      .catch(e => admToast('Error: ' + e.message, 'err'));
+  }
 });
 
 // ── Guardar URL de video ──────────────────────
