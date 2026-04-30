@@ -428,7 +428,7 @@ function renderTextEditor() {
   // Encontrar todos los elementos editables en la landing
   const editableEls = Array.from(document.querySelectorAll('[data-eid]'));
   if (!editableEls.length) {
-    container.innerHTML = '<div style="font-family:'DM Mono',monospace;font-size:.62rem;color:var(--adm-muted)">No se encontraron textos editables.</div>';
+    container.innerHTML = `<div style="font-family:'DM Mono',monospace;font-size:.62rem;color:var(--adm-muted)">No se encontraron textos editables.</div>`;
     return;
   }
 
