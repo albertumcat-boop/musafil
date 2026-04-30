@@ -557,10 +557,10 @@ footer {
   .nav-logo-main { font-size: 1rem; }
   .hero-left { padding: 4.5rem 1.25rem 2rem; }
   .hero-right { min-height: 65vw; }
-  .hero-visual-grid { grid-template-columns: 1fr 1fr; grid-template-rows: 62vw 48vw; gap: 4px; }
-  .hero-img-main { grid-row: 1; grid-column: 1 / 3; min-height: 62vw; }
-  .hero-img-placeholder:not(.hero-img-main) { min-height: 48vw; aspect-ratio: auto !important; }
-  .hero-img-placeholder:not(.hero-img-main) img.injected { object-fit: cover !important; }
+  .hero-visual-grid { grid-template-columns: 1fr; grid-template-rows: auto; gap: 4px; }
+  .hero-img-main { grid-row: 1; grid-column: 1; min-height: 70vw; }
+  .hero-img-placeholder:not(.hero-img-main) { min-height: 65vw; grid-column: 1; }
+  .hero-img-placeholder img.injected { object-fit: cover !important; object-position: center !important; }
   .hero-title { font-size: clamp(2.4rem, 8vw, 4rem); }
   .hero-sub { font-size: 1.1rem; }
   .hero-btns { flex-direction: column; gap: 0.75rem; }
