@@ -453,3 +453,15 @@
   border-radius:7px;transition:all .15s;
 }
 .ve-btn-secondary:hover{border-color:var(--adm-green);color:var(--adm-green);}
+
+/* ── Video editor extras ── */
+.ve-info-card {
+  background:var(--adm-bg2);border:1px solid var(--adm-border);
+  border-radius:8px;padding:.75rem 1rem;
+}
+.ve-note {
+  background:rgba(58,107,34,0.07);border:1px solid rgba(58,107,34,0.2);
+  border-radius:8px;padding:.7rem 1rem;
+  font-family:'DM Mono',monospace;font-size:.6rem;color:var(--adm-muted);line-height:1.7;
+}
+.ve-control-group { display:flex;flex-direction:column;gap:.3rem; }
