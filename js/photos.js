@@ -14,32 +14,31 @@ window.photos      = {};
 window.currentSlot = null;
 
 // ── Mapa: slotId → selector DOM de la landing ──
+// LANDING_MAP: usa data-slot-id en el HTML para encontrar cada slot
+// El selector es: [data-slot-id="slotId"] .gal-cell-inner
+// Para el hero y equipo usa selectores directos
 window.LANDING_MAP = {
-  // Fotos
   'hero-main':       '.hero-img-main',
   'hero-proceso':    '.hero-visual-grid .hero-img-placeholder:nth-child(2)',
   'hero-musafil':    '.hero-visual-grid .hero-img-placeholder:nth-child(3)',
-  'campo-finca':     '#tab-campo .gallery-card:nth-child(1) .media-placeholder',
-  'campo-pseudo':    '#tab-campo .gallery-card:nth-child(2) .media-placeholder',
-  'campo-transporte':'#tab-campo .gallery-card:nth-child(3) .media-placeholder',
-  'proc-maquina':    '#tab-proceso .gallery-card:nth-child(2) .media-placeholder',
-  'proc-corte':      '#tab-proceso .gallery-card:nth-child(3) .media-placeholder',
-  'proc-humedad':    '#tab-proceso .gallery-card:nth-child(4) .media-placeholder',
-  'proc-qc':         '#tab-proceso .gallery-card:nth-child(5) .media-placeholder',
-  'fibra-macro':     '#tab-fibra .gallery-card:nth-child(1) .media-placeholder',
-  'fibra-lote':      '#tab-fibra .gallery-card:nth-child(2) .media-placeholder',
-  'fibra-comp':      '#tab-fibra .gallery-card:nth-child(3) .media-placeholder',
-  'fibra-hilo':      '#tab-fibra .gallery-card:nth-child(4) .media-placeholder',
-  'lab-informe':     '#tab-laboratorio .gallery-card:nth-child(1) .media-placeholder',
-  'lab-resistencia': '#tab-laboratorio .gallery-card:nth-child(2) .media-placeholder',
-  'lab-hilatura':    '#tab-laboratorio .gallery-card:nth-child(3) .media-placeholder',
   'equipo-albert':   '.founder-avatar',
-  // Videos
-  'campo-video':     '#tab-campo .gallery-card:nth-child(4) .media-placeholder',
-  'proc-video':      '#tab-proceso .gallery-card:nth-child(1) .media-placeholder',
-  'video-principal': '#tab-video .gallery-card:nth-child(1) .media-placeholder',
-  'video-finca':     '#tab-video .gallery-card:nth-child(2) .media-placeholder',
-  'video-maquina':   '#tab-video .gallery-card:nth-child(3) .media-placeholder',
+  // Galería — encontrados por data-slot-id
+  'campo-finca':     '[data-slot-id="campo-finca"] .gal-cell-inner',
+  'campo-pseudo':    '[data-slot-id="campo-pseudo"] .gal-cell-inner',
+  'campo-transporte':'[data-slot-id="campo-transporte"] .gal-cell-inner',
+  'campo-video':     '[data-slot-id="campo-video"] .gal-cell-inner',
+  'proc-video':      '[data-slot-id="proc-video"] .gal-cell-inner',
+  'proc-maquina':    '[data-slot-id="proc-maquina"] .gal-cell-inner',
+  'proc-corte':      '[data-slot-id="proc-corte"] .gal-cell-inner',
+  'proc-humedad':    '[data-slot-id="proc-humedad"] .gal-cell-inner',
+  'proc-qc':         '[data-slot-id="proc-qc"] .gal-cell-inner',
+  'fibra-macro':     '[data-slot-id="fibra-macro"] .gal-cell-inner',
+  'fibra-lote':      '[data-slot-id="fibra-lote"] .gal-cell-inner',
+  'fibra-comp':      '[data-slot-id="fibra-comp"] .gal-cell-inner',
+  'fibra-hilo':      '[data-slot-id="fibra-hilo"] .gal-cell-inner',
+  'lab-informe':     '[data-slot-id="lab-informe"] .gal-cell-inner',
+  'lab-resistencia': '[data-slot-id="lab-resistencia"] .gal-cell-inner',
+  'lab-hilatura':    '[data-slot-id="lab-hilatura"] .gal-cell-inner',
 };
 
 // ── Cargar todas las fotos desde Firestore ──────
