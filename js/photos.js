@@ -57,8 +57,16 @@ async function loadPhotosFromFirestore() {
 
 // ── Guardar una foto en Firestore ───────────────
 async function savePhotoToFirestore(slotId, photoData) {
-  await db.collection(COLLECTION).doc(slotId).set(photoData);
-  window.photos[slotId] = photoData;
+  try {
+    await db.collection(COLLECTION).doc(slotId).set(photoData);
+    window.photos[slotId] = photoData;
+  } catch(e) {
+    // Si falla por auth, intenta de todas formas con reglas permisivas
+    if (e.code === 'permission-denied') {
+      throw new Error('Permiso denegado en Firestore. Ve a Firebase → Firestore → Reglas y cambia a: allow write: if true');
+    }
+    throw e;
+  }
 }
 
 // ── Eliminar una foto de Firestore ──────────────
@@ -91,6 +99,14 @@ function injectImg(el, photo) {
     el.appendChild(img);
   }
   img.src = photo.src;
+  img.alt = photo.caption || photo.name || '';
+
+  // Actualizar título de la card si hay caption
+  const card = el.closest('.gallery-card');
+  if (card && photo.caption) {
+    const titleEl = card.querySelector('.card-title');
+    if (titleEl) titleEl.textContent = photo.caption;
+  }
 }
 
 // ── Aplicar todas las fotos al DOM ─────────────
@@ -124,22 +140,32 @@ function applyPhotosToLanding() {
 
     // ── Video Cloudinary ───────────────────────
     if (data.type === 'cloudinary' && data.url) {
+      el.style.position = 'relative';
+      el.style.overflow = 'hidden';
       el.style.background = '#111';
-      el.style.position   = 'relative';
-      el.style.overflow   = 'hidden';
+      // Ocultar placeholders
       el.querySelectorAll('.media-icon,.video-play-btn,.img-label,.adm-slot-empty-txt,.media-type-badge')
         .forEach(ch => ch.style.display = 'none');
+      // Reutilizar o crear el elemento video
       let vid = el.querySelector('video.injected');
       if (!vid) {
         vid = document.createElement('video');
-        vid.className     = 'injected';
-        vid.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;';
-        vid.setAttribute('controls', '');
-        vid.setAttribute('playsinline', '');
-        vid.setAttribute('preload', 'metadata');
+        vid.className = 'injected';
+        vid.style.cssText = [
+          'position:absolute', 'inset:0', 'width:100%', 'height:100%',
+          'object-fit:cover', 'display:block', 'z-index:1'
+        ].join(';');
+        vid.controls  = true;
+        vid.playsInline = true;
+        vid.preload   = 'metadata';
         el.appendChild(vid);
       }
-      vid.src = data.url;
+      // Solo actualizar src si cambió
+      if (vid.getAttribute('data-src') !== data.url) {
+        vid.setAttribute('data-src', data.url);
+        vid.src = data.url;
+        vid.load();
+      }
       return;
     }
 
