@@ -127,6 +127,8 @@ function renderAllSlots() {
     if (!container) return;
     container.innerHTML = slots.map(slot => renderSlot(slot)).join('');
   });
+  // Stats se actualizan después de renderizar
+  updateStats();
 }
 
 function renderSlot(slot) {
@@ -240,6 +242,19 @@ function extractYouTubeId(url) {
   }
   return url; // si ya es el ID directo
 }
+
+// ── Click en preview del slot (foto o video) ──
+document.addEventListener('click', e => {
+  const preview = e.target.closest('.adm-slot-preview[data-slot]');
+  if (preview && document.getElementById('admin-panel').classList.contains('open')) {
+    const slot = preview.dataset.slot;
+    window.currentSlot = slot;
+    const inp = document.getElementById('adm-file-input');
+    const slotDef = Object.values(window.SLOTS).flat().find(s => s.id === slot);
+    inp.accept = slotDef?.type === 'video' ? 'video/*' : 'image/*';
+    inp.click();
+  }
+});
 
 // ── Delegación de eventos en botones de slot ───
 document.addEventListener('click', e => {
