@@ -450,12 +450,18 @@ function renderTextEditor() {
   // Agrupar por sección basado en el prefijo del eid
   const groups = {};
   editableEls.forEach(el => {
-    const eid     = el.dataset.eid;
-    const prefix  = eid.split('-')[0];
-    const labels  = {
-      hero:'Hero', stat:'Estadísticas', proc:'Proceso',
-      ev:'Galería', gal:'Galería', prod:'Producto',
-      founder:'Equipo', inv:'Inversión', contact:'Contacto',
+    const eid    = el.dataset.eid;
+    const prefix = eid.split('-')[0];
+    const labels = {
+      hero:'① Hero', stat:'② Estadísticas', sec:'③ Títulos sección',
+      step:'④ Proceso — pasos', ip:'④ Proceso — IP',
+      ev:'⑤ Galería', gal:'⑤ Galería', kpi:'⑥ Finanzas — KPIs',
+      scen:'⑥ Finanzas — Escenarios', capex:'⑥ Finanzas — CAPEX',
+      spec:'⑦ Producto — especificaciones', adv:'⑦ Producto — ventajas',
+      val:'⑧ Validación', t:'⑨ Territorio',
+      founder:'⑩ Equipo — fundador', partner:'⑩ Equipo — alianzas',
+      inv:'⑪ Inversión', tl:'⑪ Timeline',
+      contact:'⑫ Contacto', prod:'⑦ Producto',
     };
     const group = labels[prefix] || prefix;
     if (!groups[group]) groups[group] = [];
@@ -471,8 +477,9 @@ function renderTextEditor() {
       </div>
       ${items.map(({eid, el}) => {
         const currentVal = savedTexts[eid] || el.textContent?.trim() || el.innerText?.trim() || '';
-        const label = el.dataset.label || eid.replace(/-/g,' ').replace(/\w/g,l=>l.toUpperCase());
-        const isLong = currentVal.length > 80 || eid.includes('desc') || eid.includes('sub');
+        const content = (el.textContent || el.innerText || '').trim().substring(0, 50);
+        const label = el.dataset.label || (content ? content : eid.replace(/-/g, ' '));
+        const isLong = currentVal.length > 60 || eid.includes('desc') || eid.includes('sub') || eid.includes('item') || eid.includes('text');
         return `
           <div style="background:var(--adm-card);border:1px solid var(--adm-border);
             border-radius:8px;padding:.8rem 1rem;margin-bottom:.5rem;">
