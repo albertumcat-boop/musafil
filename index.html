@@ -35,13 +35,13 @@
 <!-- HERO -->
 <section id="hero">
   <div class="hero-left">
-    <div class="hero-tag">Venezuela · Agroindustria Textil</div>
-    <h1 class="hero-title">
+    <div class="hero-tag" data-eid="hero-tag">Venezuela · Agroindustria Textil</div>
+    <h1 class="hero-title" data-eid="hero-title">
       <em>Musafil</em>
       <strong>by Inmotex</strong>
     </h1>
-    <p class="hero-sub">Fibra de Plátano · Denim Sostenible</p>
-    <p class="hero-desc">Convertimos el pseudotallo de plátano — un residuo agrícola abundante en Venezuela — en el Musafil, hilo mezcla 30/70 para la industria del denim. Primer proyecto de esta clase en el país.</p>
+    <p class="hero-sub" data-eid="hero-sub">Fibra de Plátano · Denim Sostenible</p>
+    <p class="hero-desc" data-eid="hero-desc">Convertimos el pseudotallo de plátano — un residuo agrícola abundante en Venezuela — en el Musafil, hilo mezcla 30/70 para la industria del denim. Primer proyecto de esta clase en el país.</p>
     <div class="hero-btns">
       <a href="#inversion" class="btn-primary">Ver propuesta de inversión</a>
       <a href="#evidencia" class="btn-outline">Ver evidencia del proceso</a>
@@ -69,19 +69,19 @@
 <div class="stats-bar">
   <div class="stat-item">
     <div class="stat-num">500<span class="stat-unit"> kg</span></div>
-    <div class="stat-label">Capacidad mensual · fibra</div>
+    <div class="stat-label" data-eid="stat-1">Capacidad mensual · fibra</div>
   </div>
   <div class="stat-item">
     <div class="stat-num">37<span class="stat-unit">%</span></div>
-    <div class="stat-label">Margen bruto con GOTS</div>
+    <div class="stat-label" data-eid="stat-2">Margen bruto con GOTS</div>
   </div>
   <div class="stat-item">
     <div class="stat-num">$32<span class="stat-unit">k</span></div>
-    <div class="stat-label">CAPEX total recomendado</div>
+    <div class="stat-label" data-eid="stat-3">CAPEX total recomendado</div>
   </div>
   <div class="stat-item">
     <div class="stat-num">~7<span class="stat-unit"> meses</span></div>
-    <div class="stat-label">Recuperación del capital</div>
+    <div class="stat-label" data-eid="stat-4">Recuperación del capital</div>
   </div>
 </div>
 
@@ -127,234 +127,168 @@
 
 <!-- EVIDENCIA -->
 <section id="evidencia">
-  <div class="section-tag">Proceso Documentado</div>
-  <h2 class="section-title">Evidencia del <em>trabajo real</em></h2>
-  <div class="evidence-intro">
-    <p>Cada etapa del proceso está documentada con fotografías y video. Esta galería se actualiza a medida que avanza el proyecto, mostrando el progreso real desde la finca hasta el hilo terminado.</p>
-    <p>Los parámetros técnicos están siendo validados en condiciones locales (Zulia y Mérida) en pruebas piloto activas. Los resultados de laboratorio se publicarán en esta sección al concluir la primera fase.</p>
-  </div>
+  <div class="section-tag" data-eid="ev-tag">Proceso Documentado</div>
+  <h2 class="section-title" data-eid="ev-title">Evidencia del <em>trabajo real</em></h2>
+  <p class="section-lead" data-eid="ev-desc">Cada etapa del proceso está documentada con fotografías y video. La galería se actualiza a medida que avanza el proyecto.</p>
 
-  <div class="gallery-tabs">
-    <button class="tab-btn active" onclick="switchTab(this, 'tab-campo')">Campo</button>
-    <button class="tab-btn" onclick="switchTab(this, 'tab-proceso')">Proceso</button>
-    <button class="tab-btn" onclick="switchTab(this, 'tab-fibra')">Fibra</button>
-    <button class="tab-btn" onclick="switchTab(this, 'tab-laboratorio')">Laboratorio</button>
-    <button class="tab-btn" onclick="switchTab(this, 'tab-video')">Videos</button>
-  </div>
-
-  <!-- CAMPO -->
-  <div class="gallery-grid active tab-content" id="tab-campo">
-    <div class="gallery-card tall">
-      <div class="media-placeholder">
-        <div class="media-type-badge">📷 Foto</div>
-        <div class="media-icon">🌿</div>
-        <div class="img-label" style="font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--muted);text-align:center;padding:0 1rem;">Finca bananera · Zulia<br>Zona proveedora principal</div>
-      </div>
-      <div class="gallery-card-info">
-        <div class="card-title">Finca El Vigía — Mérida</div>
-        <div class="card-desc">Vista general de la plantación. Pseudotallos post-cosecha disponibles para extracción.</div>
+  <!-- ═══ BLOQUE 1: CAMPO ═══ -->
+  <div class="gal-block">
+    <div class="gal-block-header">
+      <span class="gal-num">01</span>
+      <div>
+        <div class="gal-block-title" data-eid="gal-campo-title">Finca y recolección</div>
+        <div class="gal-block-sub" data-eid="gal-campo-sub">Pseudotallos post-cosecha en Zulia y Mérida. Materia prima sin costo.</div>
       </div>
     </div>
-    <div class="gallery-card">
-      <div class="media-placeholder">
-        <div class="media-type-badge">📷 Foto</div>
-        <div class="media-icon">🍌</div>
+    <div class="gal-row">
+      <div class="gal-cell tall" data-slot-id="campo-finca">
+        <div class="gal-cell-inner media-placeholder">
+          <div class="media-icon">📷</div>
+          <div class="gal-cell-label">Finca — panorámica</div>
+        </div>
       </div>
-      <div class="gallery-card-info">
-        <div class="card-title">Pseudotallo post-cosecha</div>
-        <div class="card-desc">Material crudo antes del desfibrado. Residuo agrícola sin costo comercial.</div>
+      <div class="gal-col">
+        <div class="gal-cell" data-slot-id="campo-pseudo">
+          <div class="gal-cell-inner media-placeholder">
+            <div class="media-icon">📷</div>
+            <div class="gal-cell-label">Pseudotallo post-cosecha</div>
+          </div>
+        </div>
+        <div class="gal-cell" data-slot-id="campo-transporte">
+          <div class="gal-cell-inner media-placeholder">
+            <div class="media-icon">📷</div>
+            <div class="gal-cell-label">Recolección y transporte</div>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="gallery-card">
-      <div class="media-placeholder">
-        <div class="media-type-badge">📷 Foto</div>
-        <div class="media-icon">🚛</div>
-      </div>
-      <div class="gallery-card-info">
-        <div class="card-title">Recolección y transporte</div>
-        <div class="card-desc">Proceso de recolección en campo y traslado a planta de procesamiento.</div>
-      </div>
-    </div>
-    <div class="gallery-card wide">
-      <div class="media-placeholder" style="aspect-ratio:16/9;">
-        <div class="media-type-badge">🎥 Video</div>
-        <div class="media-icon">▶</div>
-      </div>
-      <div class="gallery-card-info">
-        <div class="card-title">Proceso de extracción — campo El Vigía</div>
-        <div class="card-desc">Video del proceso mecánico de extracción de fibra de pseudotallo de plátano. Proceso propietario Inmotex.</div>
+    <div class="gal-video-row">
+      <div class="gal-cell wide" data-slot-id="campo-video">
+        <div class="gal-cell-inner media-placeholder" style="aspect-ratio:16/7">
+          <div class="media-icon">🎥</div>
+          <div class="gal-cell-label">Video — Recorrido por la finca</div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- PROCESO -->
-  <div class="gallery-grid tab-content" id="tab-proceso">
-    <div class="gallery-card wide">
-      <div class="media-placeholder">
-        <div class="media-type-badge">🎥 Video</div>
-        <div class="media-icon">⚙️</div>
-        <div class="video-play-btn">▶</div>
-      </div>
-      <div class="gallery-card-info">
-        <div class="card-title">Demo: máquina desfibrado mecánico</div>
-        <div class="card-desc">Video del proceso propietario de extracción de fibra. Proceso 100% mecánico sin químicos.</div>
+  <!-- ═══ BLOQUE 2: PROCESO ═══ -->
+  <div class="gal-block">
+    <div class="gal-block-header">
+      <span class="gal-num">02</span>
+      <div>
+        <div class="gal-block-title" data-eid="gal-proc-title">Extracción mecánica de fibra</div>
+        <div class="gal-block-sub" data-eid="gal-proc-sub">Proceso 100% mecánico sin químicos. IP exclusiva Inmotex.</div>
       </div>
     </div>
-    <div class="gallery-card">
-      <div class="media-placeholder">
-        <div class="media-type-badge">📷 Foto</div>
-        <div class="media-icon">🔩</div>
-      </div>
-      <div class="gallery-card-info">
-        <div class="card-title">Maquinaria importada (China)</div>
-        <div class="card-desc">Desfibradora + Abridora + Cortadora. USD $11.000 en total con envíos.</div>
+    <div class="gal-video-row">
+      <div class="gal-cell wide" data-slot-id="proc-video">
+        <div class="gal-cell-inner media-placeholder" style="aspect-ratio:16/7">
+          <div class="media-icon">🎥</div>
+          <div class="gal-cell-label">Video — Proceso de desfibrado mecánico</div>
+        </div>
       </div>
     </div>
-    <div class="gallery-card">
-      <div class="media-placeholder">
-        <div class="media-type-badge">📷 Foto</div>
-        <div class="media-icon">✂️</div>
+    <div class="gal-row" style="margin-top:.75rem">
+      <div class="gal-cell" data-slot-id="proc-maquina">
+        <div class="gal-cell-inner media-placeholder">
+          <div class="media-icon">📷</div>
+          <div class="gal-cell-label">Maquinaria importada</div>
+        </div>
       </div>
-      <div class="gallery-card-info">
-        <div class="card-title">Corte de fibra 25–38mm</div>
-        <div class="card-desc">Ajuste de longitud para compatibilidad con hilatura Open-end.</div>
+      <div class="gal-cell" data-slot-id="proc-corte">
+        <div class="gal-cell-inner media-placeholder">
+          <div class="media-icon">📷</div>
+          <div class="gal-cell-label">Corte fibra 25–38mm</div>
+        </div>
       </div>
-    </div>
-    <div class="gallery-card">
-      <div class="media-placeholder">
-        <div class="media-type-badge">📷 Foto</div>
-        <div class="media-icon">💧</div>
+      <div class="gal-cell" data-slot-id="proc-humedad">
+        <div class="gal-cell-inner media-placeholder">
+          <div class="media-icon">📷</div>
+          <div class="gal-cell-label">Control de humedad</div>
+        </div>
       </div>
-      <div class="gallery-card-info">
-        <div class="card-title">Control de humedad</div>
-        <div class="card-desc">Sala de acondicionamiento. Humedad residual ≤12% antes de embalaje.</div>
-      </div>
-    </div>
-    <div class="gallery-card">
-      <div class="media-placeholder">
-        <div class="media-type-badge">📷 Foto</div>
-        <div class="media-icon">⚖️</div>
-      </div>
-      <div class="gallery-card-info">
-        <div class="card-title">Control de calidad y pesada</div>
-        <div class="card-desc">Báscula digital y protocolo QC propietario Inmotex. Ficha de lote triplicada.</div>
+      <div class="gal-cell" data-slot-id="proc-qc">
+        <div class="gal-cell-inner media-placeholder">
+          <div class="media-icon">📷</div>
+          <div class="gal-cell-label">Control de calidad</div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- FIBRA -->
-  <div class="gallery-grid tab-content" id="tab-fibra">
-    <div class="gallery-card tall">
-      <div class="media-placeholder">
-        <div class="media-type-badge">📷 Macro</div>
-        <div class="media-icon">🧵</div>
-      </div>
-      <div class="gallery-card-info">
-        <div class="card-title">Fibra Musafil — vista macro</div>
-        <div class="card-desc">Textura y longitud uniforme de la fibra procesada. Celulosa 50–60%.</div>
+  <!-- ═══ BLOQUE 3: FIBRA ═══ -->
+  <div class="gal-block">
+    <div class="gal-block-header">
+      <span class="gal-num">03</span>
+      <div>
+        <div class="gal-block-title" data-eid="gal-fibra-title">Fibra y producto Musafil</div>
+        <div class="gal-block-sub" data-eid="gal-fibra-sub">Hilo mezcla 30% plátano / 70% algodón. Sistema Open-end.</div>
       </div>
     </div>
-    <div class="gallery-card">
-      <div class="media-placeholder">
-        <div class="media-type-badge">📷 Foto</div>
-        <div class="media-icon">📦</div>
+    <div class="gal-row">
+      <div class="gal-cell tall" data-slot-id="fibra-macro">
+        <div class="gal-cell-inner media-placeholder">
+          <div class="media-icon">📷</div>
+          <div class="gal-cell-label">Fibra — vista macro</div>
+        </div>
       </div>
-      <div class="gallery-card-info">
-        <div class="card-title">Lote embalado — 50kg</div>
-        <div class="card-desc">Primer lote de fibra Musafil lista para hilandería aliada.</div>
+      <div class="gal-col">
+        <div class="gal-cell" data-slot-id="fibra-hilo">
+          <div class="gal-cell-inner media-placeholder">
+            <div class="media-icon">📷</div>
+            <div class="gal-cell-label">Hilo Musafil 30/70</div>
+          </div>
+        </div>
+        <div class="gal-cell" data-slot-id="fibra-lote">
+          <div class="gal-cell-inner media-placeholder">
+            <div class="media-icon">📷</div>
+            <div class="gal-cell-label">Lote embalado</div>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="gallery-card">
-      <div class="media-placeholder">
-        <div class="media-type-badge">📷 Comparativa</div>
-        <div class="media-icon">🔬</div>
-      </div>
-      <div class="gallery-card-info">
-        <div class="card-title">Comparativa: fibra vs algodón</div>
-        <div class="card-desc">Muestra lado a lado de fibra de plátano y algodón para ilustrar compatibilidad de mezcla.</div>
-      </div>
-    </div>
-    <div class="gallery-card wide">
-      <div class="media-placeholder">
-        <div class="media-type-badge">📷 Foto</div>
-        <div class="media-icon">🧶</div>
-      </div>
-      <div class="gallery-card-info">
-        <div class="card-title">Muestra de hilo Musafil (30/70)</div>
-        <div class="card-desc">Primeras muestras del hilo mezcla producido en la hilandería aliada. Composición 30% plátano / 70% algodón.</div>
+    <div class="gal-row" style="margin-top:.75rem">
+      <div class="gal-cell wide" data-slot-id="fibra-comp">
+        <div class="gal-cell-inner media-placeholder" style="aspect-ratio:16/6">
+          <div class="media-icon">📷</div>
+          <div class="gal-cell-label">Comparativa — fibra de plátano vs algodón</div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- LABORATORIO -->
-  <div class="gallery-grid tab-content" id="tab-laboratorio">
-    <div class="gallery-card wide">
-      <div class="media-placeholder">
-        <div class="media-type-badge">📄 Documento</div>
-        <div class="media-icon">🔬</div>
-      </div>
-      <div class="gallery-card-info">
-        <div class="card-title">Resultados de laboratorio</div>
-        <div class="card-desc">Análisis de resistencia, humedad y longitud de fibra. En proceso · Q1 2026.</div>
+  <!-- ═══ BLOQUE 4: LABORATORIO ═══ -->
+  <div class="gal-block">
+    <div class="gal-block-header">
+      <span class="gal-num">04</span>
+      <div>
+        <div class="gal-block-title" data-eid="gal-lab-title">Validación y pruebas</div>
+        <div class="gal-block-sub" data-eid="gal-lab-sub">Pruebas de resistencia, hilatura y caracterización de la fibra.</div>
       </div>
     </div>
-    <div class="gallery-card">
-      <div class="media-placeholder">
-        <div class="media-type-badge">📷 Foto</div>
-        <div class="media-icon">🧪</div>
+    <div class="gal-row">
+      <div class="gal-cell" data-slot-id="lab-informe">
+        <div class="gal-cell-inner media-placeholder">
+          <div class="media-icon">📷</div>
+          <div class="gal-cell-label">Resultados de laboratorio</div>
+        </div>
       </div>
-      <div class="gallery-card-info">
-        <div class="card-title">Prueba de resistencia</div>
-        <div class="card-desc">Test de tracción de la fibra Musafil. Objetivo: ≥15 cN/tex.</div>
+      <div class="gal-cell" data-slot-id="lab-resistencia">
+        <div class="gal-cell-inner media-placeholder">
+          <div class="media-icon">📷</div>
+          <div class="gal-cell-label">Prueba de resistencia</div>
+        </div>
       </div>
-    </div>
-    <div class="gallery-card">
-      <div class="media-placeholder">
-        <div class="media-type-badge">📊 Datos</div>
-        <div class="media-icon">📈</div>
-      </div>
-      <div class="gallery-card-info">
-        <div class="card-title">Prueba de hilatura en hilandería aliada</div>
-        <div class="card-desc">Resultados de la prueba de mezcla en máquina Open-end. Pendiente Q1 2026.</div>
+      <div class="gal-cell" data-slot-id="lab-hilatura">
+        <div class="gal-cell-inner media-placeholder">
+          <div class="media-icon">📷</div>
+          <div class="gal-cell-label">Prueba de hilatura</div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- VIDEOS -->
-  <div class="gallery-grid tab-content" id="tab-video">
-    <div class="gallery-card wide">
-      <div class="media-placeholder" style="aspect-ratio:16/9;">
-        <div class="media-type-badge">🎥 Video</div>
-        <div class="media-icon">▶</div>
-      </div>
-      <div class="gallery-card-info">
-        <div class="card-title">Proceso de extracción de fibra — Inmotex</div>
-        <div class="card-desc">Demostración del proceso mecánico de extracción de fibra de pseudotallo de plátano. Proceso propietario Inmotex.</div>
-      </div>
-    </div>
-    <div class="gallery-card">
-      <div class="media-placeholder">
-        <div class="media-type-badge">🎥 Video</div>
-        <div class="media-icon">🌿</div>
-        <div class="video-play-btn">▶</div>
-      </div>
-      <div class="gallery-card-info">
-        <div class="card-title">Recorrido por la finca — El Vigía</div>
-        <div class="card-desc">Muestra del volumen de pseudotallo disponible y acuerdo con agricultores.</div>
-      </div>
-    </div>
-    <div class="gallery-card">
-      <div class="media-placeholder">
-        <div class="media-type-badge">🎥 Video</div>
-        <div class="media-icon">⚙️</div>
-        <div class="video-play-btn">▶</div>
-      </div>
-      <div class="gallery-card-info">
-        <div class="card-title">Demo maquinaria de desfibrado</div>
-        <div class="card-desc">Operación de la desfibradora mecánica. Proceso propietario Inmotex.</div>
-      </div>
-    </div>
-  </div>
 </section>
 
 <!-- DASHBOARD FINANCIERO -->
@@ -467,8 +401,8 @@
         <div class="blend-pct2">70%</div>
         <div class="blend-material2">Algodón</div>
       </div>
-      <div class="product-name">Musafil</div>
-      <div class="product-tagline">Musa (plátano) + fil (filamento textil)</div>
+      <div class="product-name" data-eid="prod-name">Musafil</div>
+      <div class="product-tagline" data-eid="prod-tagline">Musa (plátano) + fil (filamento textil)</div>
     </div>
     <div>
       <div class="specs-list">
@@ -685,7 +619,7 @@
     <div class="team-founder">
       <div class="founder-avatar">AP</div>
       <div class="founder-name">Albert Peña</div>
-      <div class="founder-role">Director General · Inmotex</div>
+      <div class="founder-role" data-eid="founder-role">Director General · Inmotex</div>
       <div class="founder-desc">Desarrollador del proceso mecánico de extracción de fibra de plátano, propiedad intelectual exclusiva de Inmotex. Responsable de la estrategia, las relaciones con fincas bananeras, el modelo de coproducción y la ruta hacia certificaciones GOTS y B-Corp.</div>
       <div class="founder-tags">
         <span class="tag-item">IP propietaria</span>
@@ -720,8 +654,8 @@
   <h2 class="section-title">Invertir en <em>Inmotex</em></h2>
   <div class="inv-top">
     <div class="inv-ask">
-      <div class="inv-amount">$32.000</div>
-      <div class="inv-unit">USD · Inversión total recomendada</div>
+      <div class="inv-amount" data-eid="inv-amount">$32.000</div>
+      <div class="inv-unit" data-eid="inv-unit">USD · Inversión total recomendada</div>
       <div class="inv-desc">La inversión más baja de cualquier proyecto agroindustrial textil comparable en Latinoamérica. Incluye maquinaria completa importada desde China, vehículo de trabajo y capital operativo para los primeros 3 meses.</div>
       <div class="structure-bars">
         <div class="str-bar">
